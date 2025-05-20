@@ -1,0 +1,191 @@
+// schema.prisma
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "dataproxy"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------
+// NextAuth 用モデル
+// -----------------------------
+model User {
+  id                String              @id @default(cuid())
+  name              String?
+  email             String?             @unique
+  password          String              @default("")
+  emailVerified     DateTime?
+  image             String?
+  role              String              @default("CUSTOMER")
+  accounts          Account[]
+  sessions          Session[]
+  orders            Order[]
+  challengeProgress ChallengeProgress[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// -----------------------------
+// アプリケーション固有モデル
+// -----------------------------
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  image       String?
+  thumbnail   String?
+  available   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  userId          String
+  status          OrderStatus   @default(PENDING)
+  total           Decimal       @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   String?
+  tableNumber   String   @default("")
+  note            String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Challenge {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  target      Int // e.g., 注文回数 or 金額
+  type        ChallengeType
+  reward      String
+  rewardValue Decimal?      @db.Decimal(10, 2)
+  startDate   DateTime
+  endDate     DateTime
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  progress ChallengeProgress[]
+}
+
+model ChallengeProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  challengeId   String
+  progress      Int      @default(0)
+  completed     Boolean  @default(false)
+  rewardClaimed Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+
+  @@unique([userId, challengeId])
+}
+
+enum ChallengeType {
+  ORDER_COUNT
+  SPEND_AMOUNT
+  SPECIFIC_ITEMS
+}
+
+model DailySales {
+  id           String   @id @default(cuid())
+  date         DateTime @unique
+  totalSales   Decimal  @db.Decimal(10, 2)
+  orderCount   Int
+  averageOrder Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

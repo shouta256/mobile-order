@@ -1,0 +1,39 @@
+Need to install the following packages:
+repomix@0.3.6
+Ok to proceed? (y) 
+
+📦 Repomix v0.3.6
+
+No custom config found at repomix.config.json or global config at /Users/suzukishouta/.config/repomix/repomix.config.json.
+You can add a config file for additional settings. Please check https://github.com/yamadashy/repomix for more information.
+⠙ Collect file... (8/92) app/(customer)/menu/page.tsx
+[2K[1A[2K[G⠹ Processing files...
+[2K[1A[2K[G⠸ Calculating metrics...
+[2K[1A[2K[G⠼ Calculating metrics...
+[2K[1A[2K[G⠴ Calculating metrics... (62/92) components/ui/table.tsx
+[2K[1A[2K[G✔ Packing completed successfully!
+
+📈 Top 5 Files by Character Count and Token Count:
+──────────────────────────────────────────────────
+1.  components/ui/chart.tsx (10,550 chars, 2,372 tokens, 4.2%)
+2.  components/admin/menu-item-form.tsx (10,149 chars, 1,998 tokens, 3.5%)
+3.  components/ui/menubar.tsx (8,024 chars, 2,029 tokens, 3.6%)
+4.  components/ui/dropdown-menu.tsx (7,342 chars, 1,755 tokens, 3.1%)
+5.  app/(customer)/page.tsx (7,317 chars, 1,683 tokens, 2.9%)
+
+🔎 Security Check:
+──────────────────
+✔ No suspicious files detected.
+
+📊 Pack Summary:
+────────────────
+  Total Files: 92 files
+  Total Chars: 242,897 chars
+ Total Tokens: 59,175 tokens
+       Output: repomix-output.txt
+     Security: ✔ No suspicious files detected
+
+🎉 All Done!
+Your repository has been successfully packed.
+
+💡 Repomix is now available in your browser! Try it at https://repomix.com
