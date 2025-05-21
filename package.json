@@ -4,8 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "vercel:migrate": "prisma migrate deploy",
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && npm run vercel:migrate && next build",
     "start": "next start",
     "lint": "next lint",
     "seed": "prisma db seed",
