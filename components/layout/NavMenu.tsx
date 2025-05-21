@@ -4,98 +4,52 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
-import { signOut } from "next-auth/react";
-import CartLink from "./CartLink";
 
+interface NavLink {
+	href: string;
+	label: string;
+	roles: Array<"CUSTOMER" | "STAFF" | "ADMIN">;
+}
+
+/** サーバーコンポーネントから user を渡して使います */
 interface NavMenuProps {
-	user: {
-		id?: string;
-		role?: string;
-		name?: string | null;
-		email?: string | null;
-		image?: string | null;
-	} | null;
+	user: { role?: "CUSTOMER" | "STAFF" | "ADMIN" } | null;
 }
 
 export default function NavMenu({ user }: NavMenuProps) {
 	const [open, setOpen] = useState(false);
 
-	// デスクトップ用リンク
-	const desktopLinks = user ? (
-		<>
-			{user.role === "CUSTOMER" && (
-				<>
-					<Link href="/menu" className="text-gray-700 hover:text-gray-900">
-						メニュー
-					</Link>
-					<CartLink />
-					<Link href="/orders" className="text-gray-700 hover:text-gray-900">
-						注文履歴
-					</Link>
-				</>
-			)}
-			{user.role === "STAFF" && (
-				<Link
-					href="/admin/orders"
-					className="text-gray-700 hover:text-gray-900"
-				>
-					オーダー一覧
-				</Link>
-			)}
-			{user.role === "ADMIN" && (
-				<>
-					<Link
-						href="/admin/orders"
-						className="text-gray-700 hover:text-gray-900"
-					>
-						オーダー一覧
-					</Link>
-					<Link
-						href="/admin/menu"
-						className="text-gray-700 hover:text-gray-900"
-					>
-						メニュー管理
-					</Link>
-					<Link
-						href="/admin/dashboard"
-						className="text-gray-700 hover:text-gray-900"
-					>
-						管理画面
-					</Link>
-					<Link
-						href="/admin/staff"
-						className="text-gray-700 hover:text-gray-900"
-					>
-						スタッフ管理
-					</Link>
-				</>
-			)}
-			{/* プロフィール／ログアウト */}
-			{/* ここは既存の ProfileMenu を動的に import してもOK */}
-			<button
-				onClick={() => signOut({ callbackUrl: "/" })}
-				className="text-gray-700 hover:text-gray-900"
-			>
-				ログアウト
-			</button>
-		</>
-	) : (
-		<Link
-			href="/auth/signin"
-			className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-		>
-			サインイン
-		</Link>
-	);
+	const links: NavLink[] = [
+		{ href: "/menu", label: "メニュー", roles: ["CUSTOMER"] },
+		{ href: "/checkout", label: "カート", roles: ["CUSTOMER"] },
+		{ href: "/orders", label: "注文履歴", roles: ["CUSTOMER"] },
+		{ href: "/admin/orders", label: "オーダー一覧", roles: ["STAFF", "ADMIN"] },
+		{ href: "/admin/menu", label: "メニュー管理", roles: ["ADMIN"] },
+		{ href: "/admin/dashboard", label: "管理画面", roles: ["ADMIN"] },
+		{ href: "/admin/staff", label: "スタッフ管理", roles: ["ADMIN"] },
+	];
+
+	// user.role に応じたリンクだけを表示
+	const filtered = user
+		? links.filter((l) => l.roles.includes(user.role!))
+		: [];
 
 	return (
 		<>
-			{/* Desktop: md 以上で表示 */}
-			<nav className="hidden md:flex items-center space-x-4">
-				{desktopLinks}
+			{/* デスクトップ版メニュー */}
+			<nav className="hidden md:flex items-center space-x-4 flex-nowrap">
+				{filtered.map((l) => (
+					<Link
+						key={l.href}
+						href={l.href}
+						className="inline-block whitespace-nowrap text-gray-700 hover:text-gray-900"
+					>
+						{l.label}
+					</Link>
+				))}
 			</nav>
 
-			{/* Mobile: md 以下でハンバーガー */}
+			{/* モバイル版ハンバーガーアイコン */}
 			<button
 				className="md:hidden p-2"
 				onClick={() => setOpen((o) => !o)}
@@ -104,10 +58,20 @@ export default function NavMenu({ user }: NavMenuProps) {
 				{open ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
 			</button>
 
-			{/* Mobile メニュー折り畳み */}
+			{/* モバイル版ドロワーメニュー */}
 			{open && (
 				<div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden">
-					<div className="flex flex-col p-4 space-y-2">{desktopLinks}</div>
+					<div className="flex flex-col p-4 space-y-2">
+						{filtered.map((l) => (
+							<Link
+								key={l.href}
+								href={l.href}
+								className="block whitespace-nowrap text-gray-700 hover:text-gray-900"
+							>
+								{l.label}
+							</Link>
+						))}
+					</div>
 				</div>
 			)}
 		</>
