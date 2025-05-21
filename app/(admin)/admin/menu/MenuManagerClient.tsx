@@ -4,9 +4,9 @@
 import type React from "react";
 import { useTransition } from "react";
 import Image from "next/image";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { createMenuItem, updateMenuItem, deleteMenuItem } from "./actions";
+import { useToast } from "@/hooks/use-toast";
 
 interface MenuItem {
 	id: string;

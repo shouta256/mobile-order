@@ -6,9 +6,8 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Category, MenuItem } from "@prisma/client";
+import type { Category } from "@prisma/client";
 import { ImagePlus, Loader2 } from "lucide-react";
-import { createMenuItem, updateMenuItem } from "@/app/(admin)/staff/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,7 +29,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import type { MenuItem } from "@/lib/menu";
+import {
+	createMenuItem,
+	updateMenuItem,
+} from "@/app/(admin)/admin/menu/actions";
 
 const formSchema = z.object({
 	name: z.string().min(2, {
@@ -53,6 +57,7 @@ interface MenuItemFormProps {
 }
 
 export default function MenuItemForm({ categories, item }: MenuItemFormProps) {
+	const { toast } = useToast();
 	const router = useRouter();
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [imagePreview, setImagePreview] = useState<string | null>(
@@ -67,7 +72,7 @@ export default function MenuItemForm({ categories, item }: MenuItemFormProps) {
 					name: item.name,
 					description: item.description || "",
 					price: Number(item.price),
-					categoryId: item.categoryId,
+					categoryId: item.category.id,
 					available: item.available,
 					featured: item.featured,
 				}
@@ -101,9 +106,9 @@ export default function MenuItemForm({ categories, item }: MenuItemFormProps) {
 			const formData = new FormData();
 
 			// Add all form values
-			Object.entries(values).forEach(([key, value]) => {
+			for (const [key, value] of Object.entries(values)) {
 				formData.append(key, String(value));
-			});
+			}
 
 			// Add image if selected
 			if (imageFile) {

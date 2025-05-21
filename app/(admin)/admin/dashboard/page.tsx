@@ -65,18 +65,19 @@ export default async function AdminDashboardPage() {
 	});
 	const pieChartData = popularItems.map((p) => {
 		const mi = menuItems.find((m) => m.id === p.menuItemId);
-		return { name: mi?.name ?? "Unknown", value: p._sum.quantity };
+		return {
+			name: mi?.name ?? "Unknown",
+			value: p._sum.quantity ?? 0, // ← ここを修正
+		};
 	});
 
-	// 最近の注文5件（Decimal をすべてプリミティブ型に変換）
+	// 最近の注文5件
 	const recentOrdersRaw = await prisma.order.findMany({
 		take: 5,
 		orderBy: { createdAt: "desc" },
 		include: {
 			user: true,
-			orderItems: {
-				include: { menuItem: true },
-			},
+			orderItems: { include: { menuItem: true } },
 		},
 	});
 	const recentOrders = recentOrdersRaw.map((order) => ({

@@ -3,7 +3,7 @@
 
 import { useTransition, useState } from "react";
 import { createStaff } from "./actions";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function StaffForm() {
 	const [name, setName] = useState("");
@@ -26,10 +26,11 @@ export default function StaffForm() {
 				setName("");
 				setEmail("");
 				setPassword("");
-			} catch (err: any) {
+			} catch (err: unknown) {
+				const error = err as Error;
 				toast({
 					title: "登録失敗",
-					description: err.message,
+					description: error.message,
 					variant: "destructive",
 				});
 			}

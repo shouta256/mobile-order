@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 

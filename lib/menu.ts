@@ -1,7 +1,7 @@
 // lib/menu.ts
 import { prisma } from "./db";
 
-type MenuItem = {
+export type MenuItem = {
 	id: string;
 	name: string;
 	description: string | null;

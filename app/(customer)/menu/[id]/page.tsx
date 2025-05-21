@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getMenuItem, getMenuItems } from "@/lib/menu";
 import { AddToCartButton } from "@/components/menu/AddToCartButton";
-
 interface Params {
 	id: string;
 }
@@ -60,14 +59,7 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 							</span>
 						</div>
 						<div className="w-full sm:w-auto">
-							<AddToCartButton
-								item={{
-									id: item.id,
-									name: item.name,
-									price: item.price,
-									image: item.image,
-								}}
-							/>
+							<AddToCartButton item={item} />
 						</div>
 					</div>
 

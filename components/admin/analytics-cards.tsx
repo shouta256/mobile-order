@@ -1,72 +1,59 @@
-import { CreditCard, ShoppingBag, User, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// components/admin/analytics-cards.tsx
+import React from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ShoppingCart, Clock, DollarSign, Users } from "lucide-react";
 
-interface AnalyticsCardsProps {
-  totalOrders: number;
-  pendingOrders: number;
-  totalRevenue: number | Decimal;
-  totalCustomers: number;
+interface Props {
+	totalOrders: number;
+	pendingOrders: number;
+	totalRevenue: number;
+	totalCustomers: number;
 }
 
 export default function AnalyticsCards({
-  totalOrders,
-  pendingOrders,
-  totalRevenue,
-  totalCustomers
-}: AnalyticsCardsProps) {
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-          <CreditCard className="h-4 w-4 text-orange-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${Number(totalRevenue).toFixed(2)}</div>
-          <p className="text-xs text-muted-foreground">
-            From paid orders
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-          <ShoppingBag className="h-4 w-4 text-teal-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalOrders}</div>
-          <p className="text-xs text-muted-foreground">
-            {pendingOrders} pending orders
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-          <Clock className="h-4 w-4 text-red-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{pendingOrders}</div>
-          <p className="text-xs text-muted-foreground">
-            Waiting to be processed
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-          <User className="h-4 w-4 text-blue-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalCustomers}</div>
-          <p className="text-xs text-muted-foreground">
-            Registered users
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+	totalOrders,
+	pendingOrders,
+	totalRevenue,
+	totalCustomers,
+}: Props) {
+	const cards = [
+		{
+			title: "Total Orders",
+			value: totalOrders,
+			icon: <ShoppingCart size={20} className="text-gray-500" />,
+		},
+		{
+			title: "Pending Orders",
+			value: pendingOrders,
+			icon: <Clock size={20} className="text-gray-500" />,
+		},
+		{
+			title: "Total Revenue",
+			value: totalRevenue.toFixed(2),
+			icon: <DollarSign size={20} className="text-gray-500" />,
+		},
+		{
+			title: "Total Customers",
+			value: totalCustomers,
+			icon: <Users size={20} className="text-gray-500" />,
+		},
+	];
+
+	return (
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+			{cards.map(({ title, value, icon }) => (
+				<Card key={title} className="p-4">
+					<CardHeader className="flex items-center justify-between">
+						<CardTitle>{title}</CardTitle>
+						{icon}
+					</CardHeader>
+					<CardContent>
+						<div className="mt-2 text-3xl font-bold">
+							{title === "Total Revenue" ? `$${value}` : value}
+						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	);
 }

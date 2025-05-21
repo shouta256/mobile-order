@@ -3,8 +3,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 import { updateOrderDetail } from "@/app/(admin)/admin/orders/actions";
-import { useToast } from "@/components/ui/use-toast";
 
 interface OrderItem {
 	id: string;

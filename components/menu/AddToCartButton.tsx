@@ -4,10 +4,18 @@
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { MenuItem } from "@prisma/client";
+import type { MenuItem } from "@/lib/menu";
+
+export interface CartItem {
+	id: string;
+	name: string;
+	price: number;
+	image?: string | null;
+	thumbnail?: string | null;
+}
 
 interface Props {
-	item: MenuItem & { thumbnail?: string };
+	item: CartItem;
 }
 
 export function AddToCartButton({ item }: Props) {

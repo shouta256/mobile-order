@@ -1,136 +1,60 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { prisma } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+// app/api/checkout/route.ts
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 
-export async function POST(request: NextRequest) {
-  try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'You must be logged in to place an order' },
-        { status: 401 }
-      );
-    }
-    
-    const { items, total, deliveryAddress, note } = await request.json();
-    
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { error: 'No items in cart' },
-        { status: 400 }
-      );
-    }
-    
-    // Validate items and fetch current prices
-    const itemIds = items.map(item => item.id);
-    const menuItems = await prisma.menuItem.findMany({
-      where: {
-        id: {
-          in: itemIds
-        }
-      }
-    });
-    
-    if (menuItems.length !== itemIds.length) {
-      return NextResponse.json(
-        { error: 'One or more items are no longer available' },
-        { status: 400 }
-      );
-    }
-    
-    // Create transaction
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        total: total,
-        status: 'PENDING',
-        paymentStatus: 'PENDING',
-        paymentMethod: 'CARD', // Default payment method
-        deliveryAddress,
-        note,
-        orderItems: {
-          create: items.map(item => ({
-            menuItemId: item.id,
-            quantity: item.quantity,
-            price: menuItems.find(mi => mi.id === item.id)?.price!,
-            note: item.note
-          }))
-        }
-      },
-      include: {
-        orderItems: true
-      }
-    });
-    
-    // Update challenge progress if applicable
-    await updateChallengeProgress(user.id, total);
-    
-    return NextResponse.json({ 
-      success: true, 
-      orderId: order.id 
-    });
-    
-  } catch (error) {
-    console.error('Checkout error:', error);
-    return NextResponse.json(
-      { error: 'An error occurred during checkout' },
-      { status: 500 }
-    );
-  }
-}
+type OrderItem = {
+	id: string;
+	quantity: number;
+	price: number;
+	note?: string;
+};
 
-async function updateChallengeProgress(userId: string, orderTotal: number) {
-  // Find active challenges
-  const activeChallenges = await prisma.challenge.findMany({
-    where: {
-      active: true,
-      startDate: { lte: new Date() },
-      endDate: { gte: new Date() }
-    }
-  });
-  
-  for (const challenge of activeChallenges) {
-    // Get or create user progress for this challenge
-    const userProgress = await prisma.challengeProgress.upsert({
-      where: {
-        userId_challengeId: {
-          userId,
-          challengeId: challenge.id
-        }
-      },
-      update: {},
-      create: {
-        userId,
-        challengeId: challenge.id,
-        progress: 0,
-        completed: false,
-        rewardClaimed: false
-      }
-    });
-    
-    // Update progress based on challenge type
-    if (challenge.type === 'ORDER_COUNT') {
-      await prisma.challengeProgress.update({
-        where: { id: userProgress.id },
-        data: {
-          progress: { increment: 1 },
-          completed: userProgress.progress + 1 >= challenge.target
-        }
-      });
-    } else if (challenge.type === 'SPEND_AMOUNT') {
-      const newProgress = userProgress.progress + Number(orderTotal);
-      await prisma.challengeProgress.update({
-        where: { id: userProgress.id },
-        data: {
-          progress: newProgress,
-          completed: newProgress >= challenge.target
-        }
-      });
-    }
-    
-    // For SPECIFIC_ITEMS type, we would need to check order items against the target items
-    // This would require additional data structure in the challenge model
-  }
+export async function POST(req: Request) {
+	// リクエストボディからテーブル番号（または配送先）と注文アイテム、備考を受け取る
+	const { items, note, tableNumber } = (await req.json()) as {
+		items: OrderItem[];
+		note?: string;
+		tableNumber: string;
+	};
+
+	// 認証ユーザー取得
+	const user = await getCurrentUser();
+	if (!user) {
+		return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+	}
+
+	// 合計金額を計算
+	const total = items.reduce(
+		(sum: number, item: { price: number; quantity: number }) =>
+			sum + item.price * item.quantity,
+		0,
+	);
+
+	// Prisma の Decimal 型に変換
+	const { Decimal } = await import("decimal.js");
+	const totalDecimal = new Decimal(total);
+
+	// 注文を作成
+	const order = await prisma.order.create({
+		data: {
+			userId: user.id,
+			total: totalDecimal,
+			status: "PENDING",
+			paymentStatus: "PENDING",
+			paymentMethod: "CARD", // 固定値か、フロントから渡す場合は外部化
+			tableNumber: tableNumber, // ここを deliveryAddress → tableNumber に変更
+			note: note ?? "",
+			orderItems: {
+				create: items.map((item: OrderItem) => ({
+					menuItemId: item.id,
+					quantity: item.quantity,
+					price: new Decimal(item.price),
+					note: item.note ?? "",
+				})),
+			},
+		},
+	});
+
+	return NextResponse.json({ order });
 }

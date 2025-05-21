@@ -1,13 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
+import type { Session } from "next-auth";
 import { CartProvider } from "@/hooks/use-cart";
-import { ToasterProvider } from "@/components/ui/use-toast";
+import { ToasterProvider } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 interface ProvidersProps {
 	children: ReactNode;
-	session: any;
+	session: Session | null;
 }
 
 export default function Providers({ children, session }: ProvidersProps) {
@@ -19,7 +21,10 @@ export default function Providers({ children, session }: ProvidersProps) {
 			refetchOnWindowFocus={true}
 		>
 			<CartProvider>
-				<ToasterProvider>{children}</ToasterProvider>
+				<ToasterProvider>
+					{children}
+					<Toaster />
+				</ToasterProvider>
 			</CartProvider>
 		</SessionProvider>
 	);

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
-import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignInPage() {
 	const [email, setEmail] = useState("");

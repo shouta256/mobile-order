@@ -36,10 +36,10 @@ export default async function OrdersPage() {
 	// Decimal → number 変換
 	const orders = ordersRaw.map((o) => ({
 		...o,
-		total: o.total.toNumber?.() ?? (o.total as number),
+		total: o.total.toNumber(),
 		orderItems: o.orderItems.map((oi) => ({
 			...oi,
-			price: oi.price.toNumber?.() ?? (oi.price as number),
+			price: oi.price.toNumber(),
 		})),
 	}));
 

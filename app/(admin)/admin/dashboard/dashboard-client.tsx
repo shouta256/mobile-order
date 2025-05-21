@@ -2,22 +2,17 @@
 "use client";
 
 import React from "react";
-import AnalyticsCards from "@/components/admin/analytics-cards";
-import RecentOrdersTable from "@/components/admin/recent-orders-table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	BarChart,
-	Bar,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	ResponsiveContainer,
-	Tooltip,
-	Legend,
 	PieChart,
 	Pie,
 	Cell,
+	Tooltip,
+	ResponsiveContainer,
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	CartesianGrid,
 } from "recharts";
 
 interface SalesDataPoint {
@@ -31,21 +26,51 @@ interface PieDataPoint {
 	value: number;
 }
 
+interface RecentOrderItem {
+	id: string;
+	quantity: number;
+	price: number;
+	note: string | null;
+	menuItem: {
+		id: string;
+		name: string;
+		thumbnail: string | null;
+		price: number;
+	};
+}
+
+interface RecentOrder {
+	id: string;
+	total: number;
+	status: string;
+	paymentStatus: string;
+	tableNumber: string;
+	createdAt: string;
+	user: {
+		id: string;
+		name: string;
+		email: string;
+	};
+	orderItems: RecentOrderItem[];
+}
+
 interface Props {
 	totalOrders: number;
 	pendingOrders: number;
+	currentCustomers: number;
 	totalRevenue: number;
 	totalCustomers: number;
 	salesData: SalesDataPoint[];
 	pieChartData: PieDataPoint[];
-	recentOrders: any[]; // 必要に応じて型定義を強化
+	recentOrders: RecentOrder[];
 }
 
-const COLORS = ["#FF8C42", "#4ECDC4", "#FF3366", "#2C699A", "#F9C74F"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA336A"];
 
 export default function AdminDashboardClient({
 	totalOrders,
 	pendingOrders,
+	currentCustomers,
 	totalRevenue,
 	totalCustomers,
 	salesData,
@@ -53,108 +78,88 @@ export default function AdminDashboardClient({
 	recentOrders,
 }: Props) {
 	return (
-		<div className="px-4 space-y-6">
-			<div className="flex items-center justify-between">
-				<h1 className="text-3xl font-bold">Admin Dashboard</h1>
+		<div className="p-8 space-y-12">
+			{/* 概要 */}
+			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+				<div className="p-6 bg-white rounded shadow">
+					<h3 className="text-sm text-gray-500">総注文数</h3>
+					<p className="text-3xl font-bold">{totalOrders}</p>
+				</div>
+				<div className="p-6 bg-white rounded shadow">
+					<h3 className="text-sm text-gray-500">未完了注文</h3>
+					<p className="text-3xl font-bold">{pendingOrders}</p>
+				</div>
+				<div className="p-6 bg-white rounded shadow">
+					<h3 className="text-sm text-gray-500">現在の客数</h3>
+					<p className="text-3xl font-bold">{currentCustomers}</p>
+				</div>
+				<div className="p-6 bg-white rounded shadow">
+					<h3 className="text-sm text-gray-500">総売上</h3>
+					<p className="text-3xl font-bold">${totalRevenue.toFixed(2)}</p>
+				</div>
 			</div>
 
-			<AnalyticsCards
-				totalOrders={totalOrders}
-				pendingOrders={pendingOrders}
-				totalRevenue={totalRevenue}
-				totalCustomers={totalCustomers}
-			/>
+			{/* 売上グラフ */}
+			<div className="p-6 bg-white rounded shadow">
+				<h3 className="mb-4 font-medium">過去7日間の売上推移</h3>
+				<ResponsiveContainer width="100%" height={200}>
+					<LineChart data={salesData}>
+						<CartesianGrid strokeDasharray="3 3" />
+						<XAxis dataKey="date" />
+						<YAxis />
+						<Tooltip />
+						<Line type="monotone" dataKey="sales" />
+					</LineChart>
+				</ResponsiveContainer>
+			</div>
 
-			<Tabs defaultValue="sales">
-				<TabsList className="mb-4">
-					<TabsTrigger value="sales">Sales Analytics</TabsTrigger>
-					<TabsTrigger value="popular">Popular Items</TabsTrigger>
-				</TabsList>
+			{/* 人気メニュー */}
+			<div className="p-6 bg-white rounded shadow">
+				<h3 className="mb-4 font-medium">人気メニュー上位5</h3>
+				<ResponsiveContainer width="100%" height={200}>
+					<PieChart>
+						<Pie
+							data={pieChartData}
+							dataKey="value"
+							nameKey="name"
+							outerRadius={80}
+							label
+						>
+							{pieChartData.map((_, idx) => (
+								<Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+							))}
+						</Pie>
+						<Tooltip />
+					</PieChart>
+				</ResponsiveContainer>
+			</div>
 
-				<TabsContent value="sales">
-					<Card>
-						<CardHeader>
-							<CardTitle>Daily Sales (Last 7 Days)</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="h-[400px]">
-								<ResponsiveContainer width="100%" height="100%">
-									<BarChart data={salesData}>
-										<CartesianGrid strokeDasharray="3 3" />
-										<XAxis dataKey="date" />
-										<YAxis yAxisId="left" orientation="left" stroke="#FF8C42" />
-										<YAxis
-											yAxisId="right"
-											orientation="right"
-											stroke="#4ECDC4"
-										/>
-										<Tooltip />
-										<Legend />
-										<Bar
-											yAxisId="left"
-											dataKey="sales"
-											name="Sales ($)"
-											fill="hsl(var(--chart-1))"
-											radius={[4, 4, 0, 0]}
-										/>
-										<Bar
-											yAxisId="right"
-											dataKey="orders"
-											name="Orders"
-											fill="hsl(var(--chart-2))"
-											radius={[4, 4, 0, 0]}
-										/>
-									</BarChart>
-								</ResponsiveContainer>
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
-
-				<TabsContent value="popular">
-					<Card>
-						<CardHeader>
-							<CardTitle>Most Popular Items</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="h-[400px] flex items-center justify-center">
-								<ResponsiveContainer width="100%" height="100%">
-									<PieChart>
-										<Pie
-											data={pieChartData}
-											cx="50%"
-											cy="50%"
-											labelLine
-											outerRadius={150}
-											dataKey="value"
-											nameKey="name"
-											label={(entry) => entry.name}
-										>
-											{pieChartData.map((entry, idx) => (
-												<Cell
-													key={`cell-${idx}`}
-													fill={COLORS[idx % COLORS.length]}
-												/>
-											))}
-										</Pie>
-										<Tooltip />
-										<Legend />
-									</PieChart>
-								</ResponsiveContainer>
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
-			</Tabs>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>Recent Orders</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<RecentOrdersTable orders={recentOrders} />
-				</CardContent>
-			</Card>
+			{/* 最近の注文 */}
+			<div className="p-6 bg-white rounded shadow">
+				<h3 className="mb-4 font-medium">最近の注文</h3>
+				<table className="w-full text-left">
+					<thead>
+						<tr>
+							<th className="py-2">日時</th>
+							<th className="py-2">テーブル</th>
+							<th className="py-2">合計</th>
+							<th className="py-2">ステータス</th>
+						</tr>
+					</thead>
+					<tbody>
+						{recentOrders.map((order) => (
+							<tr key={order.id} className="border-t">
+								<td className="py-2">
+									{new Date(order.createdAt).toLocaleString()}
+								</td>
+								<td className="py-2">{order.tableNumber}</td>
+								<td className="py-2">${order.total.toFixed(2)}</td>
+								<td className="py-2">{order.status}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }
