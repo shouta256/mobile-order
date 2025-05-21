@@ -63,11 +63,14 @@ export default async function AdminDashboardPage() {
 	const menuItems = await prisma.menuItem.findMany({
 		where: { id: { in: popularItems.map((p) => p.menuItemId) } },
 	});
+	// --- ここを修正 ---
 	const pieChartData = popularItems.map((p) => {
 		const mi = menuItems.find((m) => m.id === p.menuItemId);
+		// nullなら0にフォールバック
+		const qty = p._sum.quantity ?? 0;
 		return {
 			name: mi?.name ?? "Unknown",
-			value: p._sum.quantity ?? 0, // ← ここを修正
+			value: qty,
 		};
 	});
 
