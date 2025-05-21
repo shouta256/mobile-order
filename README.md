@@ -1,4 +1,6 @@
 # 🍔 Mobile‑Order (Next.js 13 App Router)
+### Vercel本番環境
+https://mobile-order-taupe.vercel.app/
 
 ## 📑 目次
 
@@ -14,8 +16,8 @@
 
 店舗の **モバイルオーダー & 管理ダッシュボード** を Next.js 13（App Router）でフルスタック実装しています。
 
-- **顧客**: メニュー閲覧 → カート → 決済 → 履歴
-- **スタッフ**: オーダー一覧で調理状況を更新
+- **顧客**: メニュー閲覧 → カート → 注文 → 履歴
+- **スタッフ**: オーダー一覧で注文状況を更新
 - **管理者**: メニュー CRUD・売上分析・スタッフ管理
 - デプロイ: **Vercel** + **Vercel Postgres (Neon)** + Cloudinary
 
@@ -32,7 +34,7 @@
 ### 2. リポジトリ取得
 
 ```bash
-$ git clone https://github.com/your-org/mobile-order.git
+$ git clone https://github.com/shouta256/mobile-order.git
 $ cd mobile-order
 ```
 
@@ -83,10 +85,9 @@ $ npm run build && npm start
 | **Next.js 13 App Router** | Server/Client Component 分離で SEO & 体験を最適化。`use client` 指定を最小化しバンドルサイズを削減。              |
 | **DB & ORM**              | Neon(Postgres) + Prisma で型安全なクエリ。Decimal → number 変換を共通ヘルパに集約。                               |
 | **認証**                  | next‑auth v4: Credentials + Google OAuth。`middleware.ts` で保護ルートを制御。                                    |
-| **カート機能**            | `useCart` フックで React Context + localStorage 同期。SSR 水合問題を `mounted` フラグで解消。                     |
+| **カート機能**            | `useCart` フックで React Context + localStorage 同期。                     |
 | **画像最適化**            | Cloudinary 署名付き URL を Prisma に保存し `<Image>` で自動最適化。                                               |
 | **レスポンシブ UI**       | Tailwind CSS。`container mx-auto px‑4` を徹底し 375px でも横スクロール無し。モバイルではハンバーガー + ドロワー。 |
-| **CI/CD**                 | GitHub Actions で Lint/Test/Build → Vercel CLI Deploy。キャッシュで高速化。                                       |
 | **型安全**                | Prisma 型生成 + `zod` で Server Actions の入力検証。                                                              |
 | **Analytics**             | Recharts + Prisma 集計でダッシュボードの売上折れ線 / 円グラフ。                                                   |
 
@@ -98,9 +99,9 @@ $ npm run build && npm start
 | ---------------------------------------- | ---------------------------------------------------- |
 | **スタッフ & 管理者ロール**              | 実運用を想定し、調理オペレーションと経営分析を分離。 |
 | **売上ダッシュボード**                   | 日次売上・人気メニュー可視化で経営判断を支援。       |
-| **Cloudinary 画像アップロード**          | メニュー画像を直感的に登録でき、CDN 最適化も享受。   |
-| **ハンバーガー / ドロワーメニュー**      | モバイル UX 改善。                                   |
-| **チャレンジ機能(ゲーミフィケーション)** | リピート率向上を狙った実験的機能。                   |
+| **Cloudinary 画像アップロード**          | メニュー画像を直感的に登録でき、CDN 最適化も利用。   |
+| **ハンバーガー / ドロワーメニューなど**      | 客はスマホを使用する想定でモバイルUXを向上(管理画面はタブレットなどの大きい画面を想定)。  |
+| **チャレンジ機能(ゲーミフィケーション)** | リピート率向上を狙った実験的機能(ホーム画面にのみ実装。中身は未実装)|
 
 ---
 
@@ -110,37 +111,25 @@ $ npm run build && npm start
 
 | ツール               | 用途                                             |
 | -------------------- | ------------------------------------------------ |
-| **ChatGPT (GPT‑4o)** | コードレビュー・アーキテクチャ相談・正規表現作成 |
-| **GitHub Copilot**   | boilerplate 補完・テストスケルトン生成           |
-| **Claude 3 Sonnet**  | README や UI 文言の自然な日本語生成              |
+| **ChatGPT (GPT‑4o)** | UI生成・コードレビュー・エラー相談・データベース作成、READMEの雛形作成 |
+| **Bolt.new**   | ホーム画面のUI作成           |
+| **Claude 3 Sonnet**  | 部分的にUIの向上を指示              |
 
 ### 2. 使用場面と目的
 
-1. **データモデル設計** … ER 図を提示して最適な Prisma Schema を提案してもらった。
+1. **データモデル設計** … Prisma Schema を提案してもらった。
 2. **Server Action のバリデーション** … `zod` のスキーマ例を生成。
 3. **正規表現** … Email/Password の入力チェック。
-4. **README テンプレ** … 見出し構成を生成。
 5. **デバッグ** … ビルドエラーを StackTrace 付きで投げて解決策を取得。
 
 ### 3. 代表的なプロンプト例
+「管理画面ダッシュボード用に Recharts で折れ線グラフと円グラフを表示し、日にちごとの売り上げと人気メニューを可視化できるようして下さい。」
+売上分析画面のプロトタイプを短時間で仕上げるため、チャート配置の雛形を得る。
 
-```text
-// ChatGPT (2024‑05‑10)
-次の要件で Prisma schema を書き直して:
-- order は orderItem をネスト
-- status は Enum("PENDING","COOKING","DONE")
-- total は Decimal でスケール2
-```
+「Prisma の seed 用スクリプトで、過去 30 日分のダミー売上データを注文・注文アイテムにまとめて入れて下さい。」
+売上チャートをすぐ検証したかったため。本番 DB と差分が出ないよう Order/OrderItem の関連 insert を「１注文＝複数アイテム」で生成するコードを生成してもらった。
 
-```text
-// Copilot コメント
-/* 生成 AI 提案
-Create a Zod schema that validates tableNumber as `/^[A-Z]\d{1,2}$/`
-*/
-```
 
-> **備考**: AI 提案コードは必ずローカルで動作確認・セキュリティレビューを行い、最終的なコミットは人間が責任を持って行いました。
+> **備考**: AI 提案コードは必ずローカルで動作確認・セキュリティレビューを行い、最終的なコミットは私が責任を持って行いました。
 
----
 
-🚀 **Happy Coding & Bon Appétit!**
