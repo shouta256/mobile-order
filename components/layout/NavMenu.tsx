@@ -5,15 +5,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 
+type Role = "CUSTOMER" | "STAFF" | "ADMIN";
+
 interface NavLink {
 	href: string;
 	label: string;
-	roles: Array<"CUSTOMER" | "STAFF" | "ADMIN">;
+	roles: Role[];
 }
 
-/** サーバーコンポーネントから user を渡して使います */
 interface NavMenuProps {
-	user: { role?: "CUSTOMER" | "STAFF" | "ADMIN" } | null;
+	user: { role: string } | null;
 }
 
 export default function NavMenu({ user }: NavMenuProps) {
@@ -29,14 +30,14 @@ export default function NavMenu({ user }: NavMenuProps) {
 		{ href: "/admin/staff", label: "スタッフ管理", roles: ["ADMIN"] },
 	];
 
-	// user.role に応じたリンクだけを表示
+	// user.role を Role 型にキャストしてフィルター
 	const filtered = user
-		? links.filter((l) => l.roles.includes(user.role!))
+		? links.filter((l) => l.roles.includes(user.role as Role))
 		: [];
 
 	return (
 		<>
-			{/* デスクトップ版メニュー */}
+			{/* デスクトップ版 */}
 			<nav className="hidden md:flex items-center space-x-4 flex-nowrap">
 				{filtered.map((l) => (
 					<Link
@@ -49,7 +50,7 @@ export default function NavMenu({ user }: NavMenuProps) {
 				))}
 			</nav>
 
-			{/* モバイル版ハンバーガーアイコン */}
+			{/* モバイル版ハンバーガー */}
 			<button
 				className="md:hidden p-2"
 				onClick={() => setOpen((o) => !o)}
@@ -58,7 +59,7 @@ export default function NavMenu({ user }: NavMenuProps) {
 				{open ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
 			</button>
 
-			{/* モバイル版ドロワーメニュー */}
+			{/* モバイル版ドロワー */}
 			{open && (
 				<div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden">
 					<div className="flex flex-col p-4 space-y-2">

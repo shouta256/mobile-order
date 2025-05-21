@@ -23,10 +23,8 @@ export default async function Header() {
 
 				{/* ナビゲーション／ハンバーガー */}
 				<div className="flex items-center space-x-4">
-					{/* ユーザーの role に応じたリンク表示をモバイル・デスクトップで切り替え */}
 					<NavMenu user={user} />
 
-					{/* サインイン or プロフィール */}
 					{user ? (
 						<ProfileMenu
 							user={{
