@@ -10,7 +10,6 @@ interface Props {
 }
 
 export default function CheckoutForm({ placeOrder }: Props) {
-	// ✨ ここを統一
 	const { items, totalPrice, clear } = useCart();
 	const [isPending, start] = useTransition();
 	const router = useRouter();
@@ -23,19 +22,17 @@ export default function CheckoutForm({ placeOrder }: Props) {
 		formData.append("items", JSON.stringify(items as CartItem[]));
 		formData.append("totalPrice", totalPrice.toFixed(2));
 
-		/* テーブル番号を追加 */
 		const tableNumber = (
 			e.currentTarget.elements.namedItem("tableNumber") as HTMLInputElement
 		).value;
 		formData.append("tableNumber", tableNumber);
 
-		/* 備考欄（現状空） */
 		formData.append("note", "");
 
 		start(async () => {
 			await placeOrder(formData);
-			clear(); // ← カートを空に
-			router.push("/orders"); // 履歴ページへ遷移
+			clear();
+			router.push("/orders");
 		});
 	};
 

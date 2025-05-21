@@ -40,7 +40,6 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 			<div className="container mx-auto px-4 sm:px-6 -mt-20 sm:-mt-24 relative z-10">
 				<div className="bg-white rounded-xl shadow-xl p-6 md:p-8 max-w-4xl mx-auto">
 					{/* 基本情報 */}
-					{/* 商品名と説明文を連続して配置 */}
 					<div className="mb-6">
 						<h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
 							{item.name}
@@ -82,8 +81,6 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 							</svg>
 							<span>準備時間: 約10〜15分</span>
 						</div>
-
-						{/* その他の情報を表示する場合はここに追加 */}
 					</div>
 				</div>
 			</div>

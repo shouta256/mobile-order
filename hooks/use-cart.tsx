@@ -30,9 +30,9 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-	const { data: session } = useSession(); // ← ①
+	const { data: session } = useSession();
 	const userId = session?.user?.id ?? "guest";
-	const storageKey = `cart_${userId}`; // ← ②
+	const storageKey = `cart_${userId}`;
 
 	const [items, setItems] = useState<CartItem[]>([]);
 
@@ -48,7 +48,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		} else {
 			setItems([]); // ユーザーが切り替わった場合に初期化
 		}
-	}, [storageKey]); // userId が変わったら再実行    ← ③
+	}, [storageKey]); // userId が変わったら再実行
 
 	// ────────── 保存 ──────────
 	useEffect(() => {

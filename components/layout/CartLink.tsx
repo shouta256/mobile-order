@@ -6,7 +6,6 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 
 export default function CartLink() {
-	/* items に名称を合わせる */
 	const { items } = useCart();
 
 	/* 合計個数を算出 */

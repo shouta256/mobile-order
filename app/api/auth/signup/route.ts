@@ -7,7 +7,10 @@ export async function POST(request: Request) {
 	try {
 		const user = await signUp(email, password, name);
 		return NextResponse.json({ user });
-	} catch (err: any) {
-		return NextResponse.json({ error: err.message }, { status: 400 });
+	} catch (err: unknown) {
+		return NextResponse.json(
+			{ error: err instanceof Error ? err.message : "登録に失敗しました" },
+			{ status: 400 },
+		);
 	}
 }

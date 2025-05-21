@@ -12,12 +12,10 @@ function formatRelative(date: Date) {
 	return `${diffHr} 時間前`;
 }
 
-// 今日の 0:00（America/Chicago）を計算
 function getTodayStart(): Date {
 	const now = new Date();
-	// オフセット -5 または -6（夏時間で変動）を考慮するために locale-string 経由
 	const chicagoNow = new Date(
-		now.toLocaleString("en-US", { timeZone: "America/Chicago" }),
+		now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }),
 	);
 	chicagoNow.setHours(0, 0, 0, 0);
 	return chicagoNow;
@@ -33,7 +31,6 @@ export default async function OrdersPage() {
 		include: { orderItems: { include: { menuItem: true } } },
 	});
 
-	// Decimal → number 変換
 	const orders = ordersRaw.map((o) => ({
 		...o,
 		total: o.total.toNumber(),

@@ -6,8 +6,6 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function placeOrder(formData: FormData) {
-	console.log("🏷 placeOrder called", Object.fromEntries(formData.entries()));
-
 	// 1) ユーザー取得
 	const user = await getCurrentUser();
 	if (!user) throw new Error("ログインが必要です");
@@ -47,7 +45,7 @@ export async function placeOrder(formData: FormData) {
 			status: "PENDING",
 			paymentStatus: "PENDING",
 			paymentMethod: "CARD",
-			tableNumber, // ← テーブル番号を保存
+			tableNumber,
 			note,
 			orderItems: {
 				create: items.map((item) => {

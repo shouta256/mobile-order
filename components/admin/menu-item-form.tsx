@@ -102,20 +102,16 @@ export default function MenuItemForm({ categories, item }: MenuItemFormProps) {
 		setIsLoading(true);
 
 		try {
-			// Prepare form data including image
 			const formData = new FormData();
 
-			// Add all form values
 			for (const [key, value] of Object.entries(values)) {
 				formData.append(key, String(value));
 			}
 
-			// Add image if selected
 			if (imageFile) {
 				formData.append("image", imageFile);
 			}
 
-			// Submit based on whether we're creating or updating
 			if (item) {
 				formData.append("id", item.id);
 				await updateMenuItem(formData);
@@ -184,7 +180,6 @@ export default function MenuItemForm({ categories, item }: MenuItemFormProps) {
 							</div>
 						</div>
 
-						{/* Basic Info */}
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<FormField
 								control={form.control}

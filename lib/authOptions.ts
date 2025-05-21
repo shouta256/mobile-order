@@ -7,7 +7,6 @@ import { prisma } from "./db";
 import { compare } from "bcrypt";
 
 export const authOptions: AuthOptions = {
-	// Prisma Adapter を追加
 	adapter: PrismaAdapter(prisma),
 
 	// JWT セッション
@@ -82,9 +81,6 @@ export const authOptions: AuthOptions = {
 			});
 		},
 	},
-
-	// デバッグ用
-	// debug: true,
 };
 
 export default NextAuth(authOptions);
