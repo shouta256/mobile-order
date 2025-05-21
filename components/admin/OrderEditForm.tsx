@@ -57,10 +57,11 @@ export default function OrderEditForm({ order }: { order: Order }) {
 				await updateOrderDetail(formData);
 				toast({ title: "注文を更新しました", variant: "success" });
 				router.push("/admin/orders");
-			} catch (err: any) {
+			} catch (err: unknown) {
 				toast({
 					title: "更新に失敗しました",
-					description: err.message,
+					description:
+						err instanceof Error ? err.message : "不明なエラーが発生しました",
 					variant: "destructive",
 				});
 			}
