@@ -45,9 +45,9 @@ export default function MenuManagerClient({ items, categories }: Props) {
 				toast({ title: "メニューを作成しました", variant: "success" });
 				e.currentTarget.reset();
 				router.refresh();
-			} catch (err: any) {
+			} catch (err: unknown) {
 				toast({
-					title: err.message || "作成に失敗しました",
+					title: err instanceof Error ? err.message : "作成に失敗しました",
 					variant: "destructive",
 				});
 			}
@@ -67,9 +67,9 @@ export default function MenuManagerClient({ items, categories }: Props) {
 				await action(fd);
 				toast({ title: successMsg, variant: "success" });
 				router.refresh();
-			} catch (err: any) {
+			} catch (err: unknown) {
 				toast({
-					title: err.message || "操作に失敗しました",
+					title: err instanceof Error ? err.message : "操作に失敗しました",
 					variant: "destructive",
 				});
 			}
@@ -250,7 +250,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 								<button
 									type="submit"
 									disabled={isPending}
-									className=" w-28 h-10 bg-blue-600 text-white rounded disabled:opacity-50 self-center"
+									className="py-1 bg-blue-600 text-white rounded disabled:opacity-50"
 								>
 									修正
 								</button>
@@ -261,10 +261,10 @@ export default function MenuManagerClient({ items, categories }: Props) {
 								onSubmit={(e) =>
 									onSubmit(e, deleteMenuItem, "メニューを削除しました")
 								}
-								className="mt-2 flex justify-center"
+								className="mt-2"
 							>
 								<input type="hidden" name="id" value={item.id} />
-								<button className="w-28 h-10  bg-red-600 text-white rounded ">
+								<button className="w-full py-1 bg-red-600 text-white rounded">
 									削除
 								</button>
 							</form>
