@@ -86,7 +86,6 @@ $ npm run build && npm start
 | **カート機能**            | `useCart` フックで React Context + localStorage 同期。                     |
 | **画像最適化**            | Cloudinary 署名付き URL を Prisma に保存し `<Image>` で自動最適化。                                               |
 | **レスポンシブ UI**       | Tailwind CSS。`container mx-auto px‑4` を徹底し 375px でも横スクロール無し。モバイルではハンバーガー + ドロワー。 |
-| **CI/CD**                 | GitHub Actions で Lint/Test/Build → Vercel CLI Deploy。キャッシュで高速化。                                       |
 | **型安全**                | Prisma 型生成 + `zod` で Server Actions の入力検証。                                                              |
 | **Analytics**             | Recharts + Prisma 集計でダッシュボードの売上折れ線 / 円グラフ。                                                   |
 
