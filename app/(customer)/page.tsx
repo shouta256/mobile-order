@@ -25,7 +25,7 @@ export default async function HomePage() {
 					/>
 				</div>
 				<div className="container mx-auto px-6 relative z-10">
-					<div className="max-w-xl">
+					<div className="w-full sm:max-w-xl px-4">
 						<h1 className="text-white text-4xl md:text-6xl font-bold leading-tight">
 							<span className="block">ハンバーガーで、</span>
 							<span className="block text-orange-400 whitespace-nowrap">

@@ -41,7 +41,7 @@ export default function CheckoutForm({ placeOrder }: Props) {
 
 	/* ------------------------------  JSX  ------------------------------ */
 	return (
-		<div className="container mx-auto px-4 py-8">
+		<div className="max-w-lg mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">チェックアウト</h1>
 
 			{items.length === 0 ? (

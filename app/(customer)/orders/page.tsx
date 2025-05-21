@@ -115,7 +115,7 @@ export default async function OrdersPage() {
 	);
 
 	return (
-		<div className="container mx-auto px-4 py-8">
+		<div className="max-w-3xl mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">注文履歴</h1>
 			<Section title="今日の注文" list={todayOrders} />
 			<Section title="過去の注文" list={pastOrders} />

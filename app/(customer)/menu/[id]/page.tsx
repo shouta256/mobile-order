@@ -19,7 +19,7 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 	return (
 		<div className="bg-gradient-to-b from-white to-gray-50 min-h-screen pb-12">
 			{/* ヒーロー画像セクション */}
-			<div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[30rem] mb-8">
+			<div className="relative w-full h-56 sm:h-72 md:h-96 lg:h-[30rem] mb-6 sm:mb-8">
 				{item.image ? (
 					<Image
 						src={item.image}
@@ -37,7 +37,7 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 			</div>
 
 			{/* コンテンツエリア */}
-			<div className="container mx-auto px-4 -mt-24 relative z-10">
+			<div className="container mx-auto px-4 sm:px-6 -mt-20 sm:-mt-24 relative z-10">
 				<div className="bg-white rounded-xl shadow-xl p-6 md:p-8 max-w-4xl mx-auto">
 					{/* 基本情報 */}
 					{/* 商品名と説明文を連続して配置 */}
