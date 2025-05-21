@@ -6,20 +6,25 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 
 export default function CartLink() {
-	const { cart } = useCart();
-	const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+	/* items に名称を合わせる */
+	const { items } = useCart();
+
+	/* 合計個数を算出 */
+	const count = items.reduce((sum, item) => sum + item.quantity, 0);
 
 	return (
 		<Link href="/checkout" className="relative">
-			{/* アイコンの背景を、count>0 ならオレンジの薄い背景に */}
+			{/* アイコン&テキスト。商品が入っていれば薄いオレンジ背景 */}
 			<div
-				className={`p-2 flex items-center rounded-full ${count > 0 ? "bg-orange-100" : ""}`}
+				className={`p-2 flex items-center rounded-full ${
+					count > 0 ? "bg-orange-100" : ""
+				}`}
 			>
-				<p>カート</p>
+				<p className="mr-1">カート</p>
 				<ShoppingCart size={18} className="text-gray-700 hover:text-gray-900" />
 			</div>
 
-			{/* count が 1 以上なら、右上に赤バッジ */}
+			{/* 個数バッジ */}
 			{count > 0 && (
 				<span
 					className="absolute -top-1 -right-1 bg-orange-500 text-white 

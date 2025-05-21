@@ -20,8 +20,8 @@ export interface CartItem {
 
 interface CartContextType {
 	items: CartItem[];
-	addItem: (item: CartItem) => void;
-	removeItem: (id: string) => void;
+	addToCart: (item: CartItem) => void;
+	removeFromCart: (id: string) => void;
 	clear: () => void;
 	totalCount: number;
 	totalPrice: number;
@@ -56,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 	}, [items, storageKey]);
 
 	// ────────── 操作関数 ──────────
-	const addItem = useCallback((item: CartItem) => {
+	const addToCart = useCallback((item: CartItem) => {
 		setItems((prev) => {
 			const ex = prev.find((i) => i.id === item.id);
 			if (ex) {
@@ -68,7 +68,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		});
 	}, []);
 
-	const removeItem = useCallback((id: string) => {
+	const removeFromCart = useCallback((id: string) => {
 		setItems((prev) => prev.filter((i) => i.id !== id));
 	}, []);
 
@@ -81,7 +81,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 	return (
 		<CartContext.Provider
-			value={{ items, addItem, removeItem, clear, totalCount, totalPrice }}
+			value={{
+				items,
+				addToCart,
+				removeFromCart,
+				clear,
+				totalCount,
+				totalPrice,
+			}}
 		>
 			{children}
 		</CartContext.Provider>

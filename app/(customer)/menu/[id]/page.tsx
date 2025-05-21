@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getMenuItem, getMenuItems } from "@/lib/menu";
-import { AddToCartButton } from "@/components/menu/AddToCartButton";
+import AddToCartButton from "@/components/menu/AddToCartButton";
 interface Params {
 	id: string;
 }
