@@ -1,19 +1,9 @@
 // app/(admin)/admin/dashboard/dashboard-client.tsx
 "use client";
 
+import SalesChart from "@/components/admin/SalesChart";
 import React from "react";
-import {
-	PieChart,
-	Pie,
-	Cell,
-	Tooltip,
-	ResponsiveContainer,
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 interface SalesDataPoint {
 	date: string;
@@ -100,18 +90,9 @@ export default function AdminDashboardClient({
 			</div>
 
 			{/* 売上グラフ */}
-			<div className="p-6 bg-white rounded shadow">
-				<h3 className="mb-4 font-medium">過去7日間の売上推移</h3>
-				<ResponsiveContainer width="100%" height={200}>
-					<LineChart data={salesData}>
-						<CartesianGrid strokeDasharray="3 3" />
-						<XAxis dataKey="date" />
-						<YAxis />
-						<Tooltip />
-						<Line type="monotone" dataKey="sales" />
-					</LineChart>
-				</ResponsiveContainer>
-			</div>
+			<SalesChart
+				salesData={salesData.map(({ date, sales }) => ({ date, sales }))}
+			/>
 
 			{/* 人気メニュー */}
 			<div className="p-6 bg-white rounded shadow">
