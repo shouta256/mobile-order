@@ -14,7 +14,7 @@ export default async function HomePage() {
 		<div className="flex flex-col min-h-screen">
 			{/* Hero Section */}
 			<section className="relative h-[70vh] flex items-center">
-				<div className="absolute inset-0 z-0">
+				<div className="absolute inset-0 z-0 overflow-hidden">
 					<Image
 						src="https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 						alt="Delicious food"
@@ -44,7 +44,7 @@ export default async function HomePage() {
 							{!user && (
 								<Link
 									href="/auth/signin"
-									className="px-6 py-3 bg-white hover:bg-gray-100 transition-colors rounded-full text-gray-900 font-medium"
+									className="px-6 py-3 bg-white hover:bg-gray-100 transition-colors rounded-full text-gray-900 font-medium flex items-center justify-center gap-2"
 								>
 									Sign In
 								</Link>
