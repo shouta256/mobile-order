@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
 	// ────────────────────────────────
-	// 1) 管理者（STAFF）ユーザーをシード
+	// 1) 管理者（ADMIN）ユーザーをシード
 	// ────────────────────────────────
 	const adminEmail = "admin@example.com";
 	const adminPlainPassword = "AdminPass123"; // 好きなパスワードに変更してください
@@ -13,19 +13,39 @@ async function main() {
 
 	await prisma.user.upsert({
 		where: { email: adminEmail },
-		update: {}, // 既に存在する場合は何もしない
+		update: {},
 		create: {
 			email: adminEmail,
 			name: "店舗スタッフ（管理者）",
 			password: adminHash,
-			role: "ADMIN", // Prisma スキーマで @default("CUSTOMER") としている想定
-			// 必要に応じて他フィールドも追加 (image, emailVerified など)
+			role: "ADMIN",
 		},
 	});
 	console.log(`✅ Admin user seeded: ${adminEmail} / ${adminPlainPassword}`);
 
 	// ────────────────────────────────
-	// 2) カテゴリデータ
+	// 2) デモ用カスタマーをシード
+	// ────────────────────────────────
+	const customerEmail = "customer@example.com";
+	const customerPlainPassword = "Customer123";
+	const customerHash = await bcrypt.hash(customerPlainPassword, 10);
+
+	const customer = await prisma.user.upsert({
+		where: { email: customerEmail },
+		update: {},
+		create: {
+			email: customerEmail,
+			name: "デモカスタマー",
+			password: customerHash,
+			role: "CUSTOMER",
+		},
+	});
+	console.log(
+		`✅ Customer user seeded: ${customerEmail} / ${customerPlainPassword}`,
+	);
+
+	// ────────────────────────────────
+	// 3) カテゴリデータ
 	// ────────────────────────────────
 	const categoriesData = [
 		{ name: "Burgers", description: "Juicy burgers made to order", order: 1 },
@@ -42,84 +62,56 @@ async function main() {
 		}
 	}
 
-	const burgerCat = await prisma.category.findFirst({
-		where: { name: "Burgers" },
-	});
-	const pizzaCat = await prisma.category.findFirst({
-		where: { name: "Pizzas" },
-	});
-	const drinksCat = await prisma.category.findFirst({
-		where: { name: "Drinks" },
-	});
-
-	if (!burgerCat || !pizzaCat || !drinksCat) {
-		throw new Error("カテゴリの取得に失敗しました");
+	const allMenuItems = await prisma.menuItem.findMany();
+	if (allMenuItems.length === 0) {
+		throw new Error(
+			"メニューアイテムが見つかりません。先にメニューシードを実行してください。",
+		);
 	}
 
 	// ────────────────────────────────
-	// 3) メニューアイテムデータ
+	// 4) 過去7日間のデモ売上データを生成
 	// ────────────────────────────────
-	const menuItemsData = [
-		{
-			name: "Classic Cheeseburger",
-			description: "Beef patty with cheddar, lettuce, tomato & pickles",
-			price: 8.99,
-			categoryId: burgerCat.id,
-			available: true,
-			featured: true,
-		},
-		{
-			name: "Veggie Burger",
-			description: "Grilled veggie patty with avocado spread",
-			price: 9.49,
-			categoryId: burgerCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Margherita Pizza",
-			description: "Tomato, mozzarella, fresh basil",
-			price: 12.99,
-			categoryId: pizzaCat.id,
-			available: true,
-			featured: true,
-		},
-		{
-			name: "Pepperoni Pizza",
-			description: "Classic pepperoni & cheese",
-			price: 14.49,
-			categoryId: pizzaCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Cola",
-			description: "Sparkling soft drink",
-			price: 1.99,
-			categoryId: drinksCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Orange Juice",
-			description: "Freshly squeezed orange juice",
-			price: 2.99,
-			categoryId: drinksCat.id,
-			available: true,
-			featured: false,
-		},
-	];
+	const today = new Date();
+	for (let i = 1; i <= 7; i++) {
+		const orderDate = new Date(today);
+		orderDate.setDate(today.getDate() - i);
 
-	for (const item of menuItemsData) {
-		const exists = await prisma.menuItem.findFirst({
-			where: { name: item.name },
+		// ランダムに2～4アイテムを選択
+		const shuffled = allMenuItems.sort(() => 0.5 - Math.random());
+		const orderItemsData = shuffled
+			.slice(0, Math.floor(Math.random() * 3) + 2)
+			.map((item) => {
+				const qty = Math.floor(Math.random() * 3) + 1;
+				return {
+					menuItemId: item.id,
+					quantity: qty,
+					price: item.price,
+					note: null,
+				};
+			});
+		const totalAmount = orderItemsData.reduce(
+			(sum, oi) => sum + Number(oi.price) * oi.quantity,
+			0,
+		);
+
+		await prisma.order.create({
+			data: {
+				userId: customer.id,
+				tableNumber: `T${i}`,
+				status: "COMPLETED",
+				paymentStatus: "PAID",
+				paymentMethod: "CARD",
+				note: null,
+				total: totalAmount,
+				createdAt: orderDate,
+				orderItems: {
+					create: orderItemsData,
+				},
+			},
 		});
-		if (!exists) {
-			await prisma.menuItem.create({ data: item });
-		}
 	}
-
-	console.log("✅ シードデータの投入が完了しました");
+	console.log("✅ 過去7日間のデモ売上データを生成しました");
 }
 
 main()
