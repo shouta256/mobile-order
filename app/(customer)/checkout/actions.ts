@@ -30,7 +30,7 @@ export async function placeOrder(formData: FormData) {
 		quantity: number;
 		note?: string;
 	}[];
-	const total = parseFloat(totalPrice);
+	const total = Number.parseFloat(totalPrice);
 
 	// 3) DB から最新の価格を取得
 	const menuItems = await prisma.menuItem.findMany({

@@ -3,7 +3,7 @@
 
 import { useTransition, useState } from "react";
 import { createStaff } from "./actions";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 export default function StaffForm() {
 	const [name, setName] = useState("");

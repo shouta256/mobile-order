@@ -1,7 +1,7 @@
 // app/(admin)/admin/dashboard/page.tsx
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import AdminDashboardClient from "./dashboard-client";
+import AdminDashboardClient from "./DashboardClient";
 
 export default async function AdminDashboardPage() {
 	// 管理者チェック

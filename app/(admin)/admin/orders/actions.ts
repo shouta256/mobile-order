@@ -3,7 +3,7 @@
 
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@prisma/client";
 
 /** OrderEditForm.tsx から呼ばれている関数名に合わせる */
 export async function updateOrderDetail(formData: FormData) {

@@ -10,7 +10,7 @@ import {
 	ToastDescription,
 	ToastClose,
 } from "./toast"; // Radix UI ベースの実装だと仮定
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 export function Toaster() {
 	const { toasts, removeToast } = useToast();

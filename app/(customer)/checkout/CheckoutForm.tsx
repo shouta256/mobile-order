@@ -1,9 +1,9 @@
 "use client";
 
-import { useCart } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/useCart";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { CartItem } from "@/hooks/use-cart";
+import type { CartItem } from "@/hooks/useCart";
 
 interface Props {
 	placeOrder: (formData: FormData) => Promise<void>;
@@ -14,7 +14,7 @@ export default function CheckoutForm({ placeOrder }: Props) {
 	const [isPending, start] = useTransition();
 	const router = useRouter();
 
-	/* ----------------------------- 送信処理 ----------------------------- */
+	/* 送信処理 */
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
@@ -36,7 +36,6 @@ export default function CheckoutForm({ placeOrder }: Props) {
 		});
 	};
 
-	/* ------------------------------  JSX  ------------------------------ */
 	return (
 		<div className="max-w-lg mx-auto px-4 py-8">
 			<h1 className="text-2xl font-bold mb-6">チェックアウト</h1>

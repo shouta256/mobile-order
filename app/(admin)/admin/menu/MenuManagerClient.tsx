@@ -6,7 +6,7 @@ import { useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createMenuItem, updateMenuItem, deleteMenuItem } from "./actions";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 interface MenuItem {
 	id: string;
@@ -143,8 +143,10 @@ export default function MenuManagerClient({ items, categories }: Props) {
 						</label>
 					</div>
 					<div>
-						<label className="block mb-1">画像アップロード</label>
-						<input type="file" name="image" accept="image/*" />
+						<label htmlFor="new-image" className="block mb-1">
+							画像アップロード
+						</label>
+						<input id="new-image" type="file" name="image" accept="image/*" />
 					</div>
 					<button
 						type="submit"
@@ -264,7 +266,10 @@ export default function MenuManagerClient({ items, categories }: Props) {
 								className="mt-2"
 							>
 								<input type="hidden" name="id" value={item.id} />
-								<button className="w-full py-1 bg-red-600 text-white rounded">
+								<button
+									type="button"
+									className="w-full py-1 bg-red-600 text-white rounded"
+								>
 									削除
 								</button>
 							</form>

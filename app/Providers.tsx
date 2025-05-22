@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
-import { CartProvider } from "@/hooks/use-cart";
-import { ToasterProvider } from "@/hooks/use-toast";
+import { CartProvider } from "@/hooks/useCart";
+import { ToasterProvider } from "@/hooks/useToast";
 import { Toaster } from "@/components/ui/toaster";
 
 interface ProvidersProps {

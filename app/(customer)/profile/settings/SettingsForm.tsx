@@ -49,7 +49,7 @@ export default function SettingsForm({ user }: Props) {
 			</div>
 
 			<div>
-				<label className="block mb-1 font-medium">メールアドレス</label>
+				<div className="block mb-1 font-medium">メールアドレス</div>
 				<p className="p-2 bg-gray-100 rounded">{user.email}</p>
 			</div>
 

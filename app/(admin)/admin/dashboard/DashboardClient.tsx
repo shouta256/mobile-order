@@ -106,8 +106,8 @@ export default function AdminDashboardClient({
 							outerRadius={80}
 							label
 						>
-							{pieChartData.map((_, idx) => (
-								<Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+							{pieChartData.map((entry, idx) => (
+								<Cell key={entry.name} fill={COLORS[idx % COLORS.length]} />
 							))}
 						</Pie>
 						<Tooltip />

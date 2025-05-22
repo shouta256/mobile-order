@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Plus, Minus } from "lucide-react";
-import { useCart } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/useCart";
 import type { MenuItem } from "@/lib/menu";
 
 interface MenuListProps {
@@ -24,9 +24,9 @@ export default function MenuList({ items }: MenuListProps) {
 	// cartItems が変わるたびに数量マップを再計算
 	useEffect(() => {
 		const qtyMap: Record<string, number> = {};
-		cartItems.forEach((ci) => {
+		for (const ci of cartItems) {
 			qtyMap[ci.id] = ci.quantity;
-		});
+		}
 		setItemQuantities(qtyMap);
 	}, [cartItems]);
 
@@ -96,6 +96,7 @@ export default function MenuList({ items }: MenuListProps) {
 							{itemQuantities[item.id] > 0 ? (
 								<div className="flex items-center justify-between">
 									<button
+										type="button"
 										onClick={() => handleRemove(item.id)}
 										className="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center hover:bg-orange-200 transition-colors"
 									>
@@ -105,6 +106,7 @@ export default function MenuList({ items }: MenuListProps) {
 									<span className="font-medium">{itemQuantities[item.id]}</span>
 
 									<button
+										type="button"
 										onClick={() => handleAdd(item)}
 										className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
 									>
@@ -113,6 +115,7 @@ export default function MenuList({ items }: MenuListProps) {
 								</div>
 							) : (
 								<button
+									type="button"
 									onClick={() => handleAdd(item)}
 									className="w-full py-2 bg-orange-500 hover:bg-orange-600 transition-colors rounded-lg text-white font-medium flex items-center justify-center gap-2"
 								>

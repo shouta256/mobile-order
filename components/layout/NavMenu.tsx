@@ -53,6 +53,7 @@ export default function NavMenu({ user }: NavMenuProps) {
 
 			{/* モバイル版ハンバーガー */}
 			<button
+				type="button"
 				className="md:hidden p-2"
 				onClick={() => setOpen((o) => !o)}
 				aria-label="Toggle Menu"

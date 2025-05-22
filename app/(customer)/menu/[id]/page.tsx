@@ -44,7 +44,7 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 						<h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
 							{item.name}
 						</h1>
-						<div className="h-1 w-16 bg-amber-500 mb-4 rounded-full"></div>
+						<div className="h-1 w-16 bg-amber-500 mb-4 rounded-full" />
 						<p className="text-gray-600 max-w-3xl md:text-lg leading-relaxed">
 							{item.description}
 						</p>
@@ -72,6 +72,7 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 								viewBox="0 0 24 24"
 								stroke="currentColor"
 							>
+								<title>時計アイコン</title>
 								<path
 									strokeLinecap="round"
 									strokeLinejoin="round"

@@ -1,6 +1,6 @@
 // app/api/auth/signup/route.ts
 import { NextResponse } from "next/server";
-import { signUp } from "@/lib/auth-server";
+import { signUp } from "@/lib/authServer";
 
 export async function POST(request: Request) {
 	const { email, password, name } = await request.json();

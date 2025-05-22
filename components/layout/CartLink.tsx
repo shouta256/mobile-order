@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
-import { useCart } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/useCart";
 
 export default function CartLink() {
 	const { items } = useCart();

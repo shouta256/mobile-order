@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 

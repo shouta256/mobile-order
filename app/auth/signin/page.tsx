@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 export default function SignInPage() {
 	const [email, setEmail] = useState("");
@@ -71,6 +71,7 @@ export default function SignInPage() {
 			<div className="h-px bg-gray-300 my-4" />
 
 			<button
+				type="button"
 				onClick={handleGoogle}
 				className="w-full py-2 bg-red-500 text-white rounded hover:bg-red-600"
 			>

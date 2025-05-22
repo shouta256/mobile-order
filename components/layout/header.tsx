@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import NavMenu from "./NavMenu";
 import { getSiteSetting } from "@/lib/settings";
 
-const ProfileMenu = dynamic(() => import("./profile-menu"), {
+const ProfileMenu = dynamic(() => import("./ProfileMenu"), {
 	ssr: false,
 });
 

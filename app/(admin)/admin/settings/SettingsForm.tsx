@@ -3,7 +3,7 @@
 
 import { useState, useTransition } from "react";
 import { saveSiteSetting } from "./actions";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import type { SiteSetting } from "@/lib/settings";
 
 export default function SettingClient({
@@ -69,8 +69,11 @@ export default function SettingClient({
 
 			{/* Primary Color */}
 			<div className="flex items-center space-x-4">
-				<label className="whitespace-nowrap font-medium">メインカラー:</label>
+				<label htmlFor="primaryColor" className="whitespace-nowrap font-medium">
+					メインカラー:
+				</label>
 				<input
+					id="primaryColor"
 					type="color"
 					name="primaryColor"
 					value={color}
@@ -82,8 +85,11 @@ export default function SettingClient({
 
 			{/*Hero Image */}
 			<div className="space-y-2">
-				<label className="block font-medium">ヒーロー画像</label>
+				<label htmlFor="heroImage" className="block font-medium">
+					ヒーロー画像
+				</label>
 				<input
+					id="heroImage"
 					type="file"
 					name="heroImageFile"
 					accept="image/*"

@@ -49,6 +49,7 @@ export default async function AdminOrdersPage() {
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 					>
+						<title>注文なしアイコン</title>
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -152,6 +153,7 @@ export default async function AdminOrdersPage() {
 											viewBox="0 0 24 24"
 											stroke="currentColor"
 										>
+											<title>完了アイコン</title>
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
