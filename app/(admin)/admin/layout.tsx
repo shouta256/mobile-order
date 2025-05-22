@@ -3,7 +3,6 @@ import type React from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 
 export default async function AdminLayout({
 	children,
