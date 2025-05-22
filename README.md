@@ -93,6 +93,7 @@ $ npm run build && npm start
 | **型安全**                | Prisma 型生成 + `zod` で Server Actions の入力検証。                                                                                                                            |
 | **Analytics**             | Recharts + Prisma 集計でダッシュボードの売上折れ線 / 円グラフ。                                                                                                                 |
 | **Store Settings 機構**   | Prisma 1 レコードでサイト設定を一元管理。Server Action + Revalidate Path により更新即時反映。Color Picker／画像アップロードは `<input type="color">` と Cloudinary API を併用。 |
+| **パフォーマンス向上**    | ISR（revalidate）を活用したキャッシュ戦略、next/dynamic で動的インポート、高頻度更新箇所への useCallback・memo 適用で再レンダリング抑制。                                       |
 
 ---
 
