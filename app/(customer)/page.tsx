@@ -4,47 +4,80 @@ import Image from "next/image";
 import { ArrowRight, Utensils } from "lucide-react";
 import { getFeaturedMenuItems } from "@/lib/menu";
 import { getCurrentUser } from "@/lib/auth";
+import { getSiteSetting } from "@/lib/settings";
+
+// export const dynamic = "force-dynamic";
+
+const FALLBACK_URL =
+	"https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
 
 export default async function HomePage() {
 	// サーバー側でログイン状態を取得
-	const user = await getCurrentUser();
-	const featuredItems = await getFeaturedMenuItems();
+	const [user, featuredItems, setting] = await Promise.all([
+		getCurrentUser(),
+		getFeaturedMenuItems(),
+		getSiteSetting(),
+	]);
+
+	const heroImage =
+		setting?.heroImage && setting.heroImage.trim() !== ""
+			? setting.heroImage
+			: FALLBACK_URL;
+
+	/* 設定が無い場合のフォールバック */
+	const heroText1 = setting?.heroText1 ?? "ハンバーガーで、";
+	const heroText2 = setting?.heroText2 ?? "今日をもっとおいしく。";
+	const heroText3 = setting?.heroText3 ?? "";
+	const primaryColor = setting?.primaryColor ?? "#ff7a00";
 
 	return (
 		<div className="flex flex-col min-h-screen">
 			{/* Hero Section */}
 			<section className="relative h-[70vh] flex items-center">
+				{/* 背景画像 */}
 				<div className="absolute inset-0 z-0 overflow-hidden">
 					<Image
-						src="https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-						alt="Delicious food"
+						src={heroImage} /* ← ここが string 型に */
+						alt="Hero"
 						fill
-						style={{ objectFit: "cover" }}
 						priority
-						className="brightness-[0.6]"
+						className="object-cover brightness-[0.6]"
 					/>
 				</div>
+
+				{/* キャッチコピー */}
 				<div className="container mx-auto px-6 relative z-10">
-					<div className="w-full sm:max-w-xl px-4">
-						<h1 className="text-white text-4xl md:text-6xl font-bold leading-tight">
-							<span className="block">ハンバーガーで、</span>
-							<span className="block text-orange-400 whitespace-nowrap">
-								今日をもっとおいしく。
+					<div className="w-full sm:max-w-xl">
+						<h1 className="font-bold leading-tight text-4xl md:text-6xl tracking-tight">
+							<span className="block text-white">{heroText1}</span>
+							<span
+								className="block whitespace-nowrap"
+								style={{ color: primaryColor }}
+							>
+								{heroText2}
 							</span>
 						</h1>
 
+						{heroText3 && (
+							<p className="mt-4 text-sm sm:text-base text-white/80 max-w-md">
+								{heroText3}
+							</p>
+						)}
+
+						{/* CTA */}
 						<div className="mt-8 flex flex-col sm:flex-row gap-4">
 							<Link
 								href="/menu"
-								className="px-6 py-3 bg-orange-500 hover:bg-orange-600 transition-colors rounded-full text-white font-medium flex items-center justify-center gap-2"
+								style={{ backgroundColor: primaryColor }}
+								className="px-6 py-3 rounded-full text-white font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-colors"
 							>
 								View Menu <ArrowRight size={18} />
 							</Link>
-							{/* 未ログイン時のみ表示 */}
+
 							{!user && (
 								<Link
 									href="/auth/signin"
-									className="px-6 py-3 bg-white hover:bg-gray-100 transition-colors rounded-full text-gray-900 font-medium flex items-center justify-center gap-2"
+									className="px-6 py-3 bg-white rounded-full text-gray-900 font-medium flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
 								>
 									Sign In
 								</Link>

@@ -28,6 +28,7 @@ export default function NavMenu({ user }: NavMenuProps) {
 		{ href: "/admin/menu", label: "メニュー管理", roles: ["ADMIN"] },
 		{ href: "/admin/dashboard", label: "管理画面", roles: ["ADMIN"] },
 		{ href: "/admin/staff", label: "スタッフ管理", roles: ["ADMIN"] },
+		{ href: "/admin/settings", label: "サイト設定", roles: ["ADMIN"] },
 	];
 
 	// user.role を Role 型にキャストしてフィルター

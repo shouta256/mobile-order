@@ -111,6 +111,24 @@ async function main() {
 			},
 		});
 	}
+
+	// ────────────────────────────────
+	// 5) デフォルトのデザインを生成
+	// ────────────────────────────────
+	const exists = await prisma.siteSetting.findFirst();
+	if (!exists) {
+		await prisma.siteSetting.create({
+			data: {
+				storeName: "My Restaurant",
+				heroText1: "ハンバーガーで、",
+				heroText2: "今日をもっとおいしく。",
+				heroText3: "産地直送の食材で毎日手づくり。ぜひお試しください！",
+				primaryColor: "#ff7a00",
+				heroImage:
+					"https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg",
+			},
+		});
+	}
 	console.log("✅ 過去7日間のデモ売上データを生成しました");
 }
 

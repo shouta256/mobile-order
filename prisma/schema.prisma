@@ -189,3 +189,16 @@ model DailySales {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model SiteSetting {
+  id            String   @id @default(cuid())
+  storeName     String?
+  heroText1     String?
+  heroText2     String?
+  heroText3     String?
+  primaryColor  String? 
+  heroImage     String?
+  thumbnail     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

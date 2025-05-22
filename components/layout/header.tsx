@@ -3,22 +3,27 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { getCurrentUser } from "@/lib/auth";
 import NavMenu from "./NavMenu";
+import { getSiteSetting } from "@/lib/settings";
 
-// プロフィールメニューはクライアント専用
 const ProfileMenu = dynamic(() => import("./profile-menu"), {
 	ssr: false,
 });
 
 export default async function Header() {
 	// サーバー側でセッションからユーザー取得
-	const user = await getCurrentUser();
+	const [user, setting] = await Promise.all([
+		getCurrentUser(),
+		getSiteSetting(),
+	]);
 
 	return (
 		<header className="fixed top-0 w-full bg-white shadow z-20">
 			<div className="container mx-auto flex items-center justify-between h-16 px-4">
 				{/* ロゴ */}
 				<Link href="/">
-					<span className="text-xl font-bold">MyRestaurant</span>
+					<span className="text-xl font-bold" style={{ color: "var(--pc)" }}>
+						{setting?.storeName ?? "MyRestaurant"}
+					</span>
 				</Link>
 
 				{/* ナビゲーション／ハンバーガー */}
