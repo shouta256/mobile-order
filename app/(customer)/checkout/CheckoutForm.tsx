@@ -4,6 +4,7 @@ import { useCart } from "@/hooks/useCart";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { CartItem } from "@/hooks/useCart";
+import { useToast } from "@/hooks/useToast";
 
 interface Props {
 	placeOrder: (formData: FormData) => Promise<void>;
@@ -13,13 +14,14 @@ export default function CheckoutForm({ placeOrder }: Props) {
 	const { items, totalPrice, clear } = useCart();
 	const [isPending, start] = useTransition();
 	const router = useRouter();
+	const { toast } = useToast();
 
 	/* 送信処理 */
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const formData = new FormData();
-		formData.append("items", JSON.stringify(items as CartItem[]));
+		const formData = new FormData(e.currentTarget);
+		formData.append("items", JSON.stringify(items satisfies CartItem[])); // narrow 型
 		formData.append("totalPrice", totalPrice.toFixed(2));
 
 		const tableNumber = (
@@ -30,9 +32,17 @@ export default function CheckoutForm({ placeOrder }: Props) {
 		formData.append("note", "");
 
 		start(async () => {
-			await placeOrder(formData);
-			clear();
-			router.push("/orders");
+			try {
+				await placeOrder(formData);
+				clear(); // ← mutation 完了後にクリア
+				router.replace("/orders"); // replace で履歴を汚さない
+			} catch (err) {
+				toast({
+					title: "注文に失敗しました",
+					description: (err as Error).message,
+					variant: "destructive",
+				});
+			}
 		});
 	};
 

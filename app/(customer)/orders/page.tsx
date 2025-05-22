@@ -1,55 +1,90 @@
 // app/(customer)/orders/page.tsx
-import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import Image from "next/image";
+import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
+import type { Decimal } from "@prisma/client/runtime/library";
 
-// 「何分前 / 何時間前」を計算
+/** 「xx 分前 / xx 時間前」を Intl で生成（日本語）*/
+const rtf = new Intl.RelativeTimeFormat("ja", { numeric: "auto" });
 function formatRelative(date: Date) {
-	const diffMs = Date.now() - date.getTime();
-	const diffMin = Math.floor(diffMs / 1000 / 60);
-	if (diffMin < 60) return `${diffMin} 分前`;
-	const diffHr = Math.floor(diffMin / 60);
-	return `${diffHr} 時間前`;
+	const diffSec = Math.round((Date.now() - date.getTime()) / 1_000);
+	const minutes = Math.floor(diffSec / 60);
+	if (minutes < 60) return rtf.format(-minutes, "minute");
+	const hours = Math.floor(minutes / 60);
+	return rtf.format(-hours, "hour");
 }
 
+/** 本日 00:00 (Asia/Tokyo) */
 function getTodayStart(): Date {
-	const now = new Date();
-	const chicagoNow = new Date(
-		now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }),
+	const nowJst = new Date(
+		new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
 	);
-	chicagoNow.setHours(0, 0, 0, 0);
-	return chicagoNow;
+	nowJst.setHours(0, 0, 0, 0);
+	return nowJst;
 }
 
-export default async function OrdersPage() {
-	const user = await getCurrentUser();
-	if (!user) throw new Error("ログインが必要です");
-
-	const ordersRaw = await prisma.order.findMany({
-		where: { userId: user.id },
-		orderBy: { createdAt: "desc" },
-		include: { orderItems: { include: { menuItem: true } } },
-	});
-
-	const orders = ordersRaw.map((o) => ({
+function normalizeOrders<
+	T extends {
+		id: string;
+		total: Decimal;
+		createdAt: Date;
+		tableNumber: string;
+		orderItems: {
+			id: string;
+			quantity: number;
+			price: Decimal;
+			menuItem: { name: string; thumbnail: string | null };
+		}[];
+	}[],
+>(raw: T) {
+	return raw.map((o) => ({
 		...o,
 		total: o.total.toNumber(),
 		orderItems: o.orderItems.map((oi) => ({
 			...oi,
 			price: oi.price.toNumber(),
 		})),
-	}));
+	})) as unknown as {
+		id: string;
+		total: number;
+		createdAt: Date;
+		tableNumber: string;
+		orderItems: {
+			id: string;
+			quantity: number;
+			price: number;
+			menuItem: { name: string; thumbnail: string | null };
+		}[];
+	}[];
+}
+
+export default async function OrdersPage() {
+	const user = await getCurrentUser();
+	if (!user) throw new Error("ログインが必要です");
 
 	const todayStart = getTodayStart();
-	const todayOrders = orders.filter((o) => o.createdAt >= todayStart);
-	const pastOrders = orders.filter((o) => o.createdAt < todayStart);
+	const [todayRaw, pastRaw] = await Promise.all([
+		prisma.order.findMany({
+			where: { userId: user.id, createdAt: { gte: todayStart } },
+			orderBy: { createdAt: "desc" },
+			include: { orderItems: { include: { menuItem: true } } },
+		}),
+		prisma.order.findMany({
+			where: { userId: user.id, createdAt: { lt: todayStart } },
+			orderBy: { createdAt: "desc" },
+			include: { orderItems: { include: { menuItem: true } } },
+		}),
+	]);
+
+	const todayOrders = normalizeOrders(todayRaw);
+	const pastOrders = normalizeOrders(pastRaw);
 
 	const Section = ({
 		title,
 		list,
 	}: {
 		title: string;
-		list: typeof orders;
+		list: typeof todayOrders;
 	}) => (
 		<>
 			<h2 className="text-xl font-semibold mb-4">{title}</h2>
@@ -59,6 +94,7 @@ export default async function OrdersPage() {
 				<div className="space-y-8 mb-10">
 					{list.map((order) => (
 						<div key={order.id} className="border p-4 rounded-lg">
+							{/* ヘッダー（日時 & 合計） */}
 							<div className="flex justify-between mb-2 text-sm text-gray-600">
 								{title === "今日の注文" ? (
 									<span>{formatRelative(order.createdAt)}</span>
@@ -75,9 +111,13 @@ export default async function OrdersPage() {
 									合計: ¥{order.total.toFixed(2)}
 								</span>
 							</div>
+
+							{/* テーブル番号 */}
 							<p className="mb-2 text-xs text-gray-500">
 								テーブル番号: {order.tableNumber}
 							</p>
+
+							{/* アイテム一覧 */}
 							<ul className="space-y-2">
 								{order.orderItems.map((item) => (
 									<li
@@ -91,10 +131,11 @@ export default async function OrdersPage() {
 												width={40}
 												height={40}
 												className="rounded"
+												sizes="40px"
 											/>
 										) : (
 											<div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400">
-												−
+												–
 											</div>
 										)}
 										<span className="flex-1">
