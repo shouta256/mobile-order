@@ -1,7 +1,7 @@
 // app/(admin)/admin/layout.tsx
-import React from "react";
+import type React from "react";
 import { redirect } from "next/navigation";
-import { getCurrentUser, requireStaff } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
