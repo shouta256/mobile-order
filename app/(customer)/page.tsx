@@ -92,11 +92,12 @@ export default async function HomePage() {
 				<div className="container mx-auto px-6">
 					<div className="flex items-center justify-between mb-8">
 						<h2 className="text-3xl font-bold flex items-center gap-2">
-							<Utensils className="text-orange-500" /> Featured Items
+							<Utensils style={{ color: primaryColor }} /> Featured Items
 						</h2>
 						<Link
 							href="/menu"
-							className="text-orange-500 font-medium hover:text-orange-600 flex items-center gap-1"
+							className=" font-medium hover:text-orange-600 flex items-center gap-1"
+							style={{ color: primaryColor }}
 						>
 							View All <ArrowRight size={16} />
 						</Link>
@@ -123,7 +124,7 @@ export default async function HomePage() {
 								<div className="p-4">
 									<div className="flex justify-between items-start">
 										<h3 className="font-semibold text-lg">{item.name}</h3>
-										<span className="font-bold text-orange-500">
+										<span className="font-bold" style={{ color: primaryColor }}>
 											${item.price.toFixed(2)}
 										</span>
 									</div>

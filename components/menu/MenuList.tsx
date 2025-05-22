@@ -10,13 +10,11 @@ import type { MenuItem } from "@/lib/menu";
 
 interface MenuListProps {
 	items: (MenuItem & { category: { name: string } })[];
+	primaryColor: string;
 }
 
-export default function MenuList({ items }: MenuListProps) {
-	// カート内アイテムを cartItems として受け取る
+export default function MenuList({ items, primaryColor }: MenuListProps) {
 	const { items: cartItems, addToCart, removeFromCart } = useCart();
-
-	// 各メニューごとの数量マップ
 	const [itemQuantities, setItemQuantities] = useState<Record<string, number>>(
 		{},
 	);
@@ -50,7 +48,11 @@ export default function MenuList({ items }: MenuListProps) {
 	}
 
 	return (
-		<div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4 sm:gap-6 mt-6">
+		<div
+			// --primary カスタムプロパティに渡された色をセット
+			style={{ "--primary": primaryColor } as React.CSSProperties}
+			className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4 sm:gap-6 mt-6"
+		>
 			{items.map((item) => (
 				<div
 					key={item.id}
@@ -78,12 +80,13 @@ export default function MenuList({ items }: MenuListProps) {
 							<h3 className="font-semibold text-lg">
 								<Link
 									href={`/menu/${item.id}`}
-									className="hover:text-orange-500 transition-colors"
+									// 商品名リンクの hover 色も --primary を参照
+									className="transition-colors hover:text-[var(--primary)]"
 								>
 									{item.name}
 								</Link>
 							</h3>
-							<span className="font-bold text-orange-500">
+							<span className="font-bold text-[var(--primary)]">
 								${Number(item.price).toFixed(2)}
 							</span>
 						</div>
@@ -95,20 +98,22 @@ export default function MenuList({ items }: MenuListProps) {
 						<div className="mt-4">
 							{itemQuantities[item.id] > 0 ? (
 								<div className="flex items-center justify-between">
+									{/* マイナスボタン */}
 									<button
 										type="button"
 										onClick={() => handleRemove(item.id)}
-										className="w-10 h-10 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center hover:bg-orange-200 transition-colors"
+										className="w-10 h-10 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center hover:bg-[var(--primary)]/20 transition-colors"
 									>
 										<Minus size={16} />
 									</button>
 
 									<span className="font-medium">{itemQuantities[item.id]}</span>
 
+									{/* プラスボタン */}
 									<button
 										type="button"
 										onClick={() => handleAdd(item)}
-										className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
+										className="w-10 h-10 rounded-full bg-[var(--primary)] text-white flex items-center justify-center hover:opacity-90 transition-opacity"
 									>
 										<Plus size={16} />
 									</button>
@@ -117,7 +122,7 @@ export default function MenuList({ items }: MenuListProps) {
 								<button
 									type="button"
 									onClick={() => handleAdd(item)}
-									className="w-full py-2 bg-orange-500 hover:bg-orange-600 transition-colors rounded-lg text-white font-medium flex items-center justify-center gap-2"
+									className="w-full py-2 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
 								>
 									<Plus size={16} /> Add to Cart
 								</button>

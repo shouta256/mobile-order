@@ -69,7 +69,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const removeFromCart = useCallback((id: string) => {
-		setItems((prev) => prev.filter((i) => i.id !== id));
+		setItems((prev) => {
+			const existing = prev.find((i) => i.id === id);
+			if (!existing) {
+				// カートにないなら何もしない
+				return prev;
+			}
+			if (existing.quantity <= 1) {
+				// 1 以下になったら配列から除外
+				return prev.filter((i) => i.id !== id);
+			}
+			// それ以外は quantity を 1 減らす
+			return prev.map((i) =>
+				i.id === id ? { ...i, quantity: i.quantity - 1 } : i,
+			);
+		});
 	}, []);
 
 	const clear = useCallback(() => {

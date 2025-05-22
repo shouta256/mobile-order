@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getMenuItem, getMenuItems } from "@/lib/menu";
 import AddToCartButton from "@/components/menu/AddToCartButton";
+import { getSiteSetting } from "@/lib/settings";
 interface Params {
 	id: string;
 }
@@ -13,8 +14,13 @@ export async function generateStaticParams(): Promise<Params[]> {
 }
 
 export default async function MenuItemPage({ params }: { params: Params }) {
-	const item = await getMenuItem(params.id);
+	const [item, setting] = await Promise.all([
+		getMenuItem(params.id),
+		getSiteSetting(),
+	]);
 	if (!item) return notFound();
+
+	const primaryColor = setting?.primaryColor ?? "#ff7a00";
 
 	return (
 		<div className="bg-gradient-to-b from-white to-gray-50 min-h-screen pb-12">
@@ -44,7 +50,10 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 						<h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
 							{item.name}
 						</h1>
-						<div className="h-1 w-16 bg-amber-500 mb-4 rounded-full" />
+						<div
+							className="h-1 w-16  mb-4 rounded-full"
+							style={{ color: primaryColor }}
+						/>
 						<p className="text-gray-600 max-w-3xl md:text-lg leading-relaxed">
 							{item.description}
 						</p>
@@ -53,12 +62,20 @@ export default async function MenuItemPage({ params }: { params: Params }) {
 					{/* 価格と追加ボタン */}
 					<div className="flex flex-wrap items-center justify-between mb-8">
 						<div className="bg-amber-50 px-5 py-3 rounded-full mb-4 mr-4">
-							<span className="text-2xl font-bold text-amber-600">
+							<span
+								className="text-2xl font-bold "
+								style={{ color: primaryColor }}
+							>
 								${item.price.toFixed(2)}
 							</span>
 						</div>
 						<div className="w-full sm:w-auto">
-							<AddToCartButton item={item} />
+							<AddToCartButton
+								id={item.id}
+								name={item.name}
+								price={item.price}
+								image={item.image}
+							/>
 						</div>
 					</div>
 

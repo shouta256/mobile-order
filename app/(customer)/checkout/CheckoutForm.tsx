@@ -8,20 +8,20 @@ import { useToast } from "@/hooks/useToast";
 
 interface Props {
 	placeOrder: (formData: FormData) => Promise<void>;
+	primaryColor: string;
 }
 
-export default function CheckoutForm({ placeOrder }: Props) {
+export default function CheckoutForm({ placeOrder, primaryColor }: Props) {
 	const { items, totalPrice, clear } = useCart();
 	const [isPending, start] = useTransition();
 	const router = useRouter();
 	const { toast } = useToast();
 
-	/* 送信処理 */
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const formData = new FormData(e.currentTarget);
-		formData.append("items", JSON.stringify(items satisfies CartItem[])); // narrow 型
+		formData.append("items", JSON.stringify(items as CartItem[]));
 		formData.append("totalPrice", totalPrice.toFixed(2));
 
 		const tableNumber = (
@@ -34,12 +34,14 @@ export default function CheckoutForm({ placeOrder }: Props) {
 		start(async () => {
 			try {
 				await placeOrder(formData);
-				clear(); // ← mutation 完了後にクリア
-				router.replace("/orders"); // replace で履歴を汚さない
-			} catch (err) {
+				clear();
+				router.replace("/orders");
+			} catch (err: unknown) {
+				const errorMessage =
+					err instanceof Error ? err.message : "予期せぬエラーが発生しました";
 				toast({
 					title: "注文に失敗しました",
-					description: (err as Error).message,
+					description: errorMessage,
 					variant: "destructive",
 				});
 			}
@@ -47,14 +49,18 @@ export default function CheckoutForm({ placeOrder }: Props) {
 	};
 
 	return (
-		<div className="max-w-lg mx-auto px-4 py-8">
+		<div
+			// primaryColor を --primary にセット
+			style={{ "--primary": primaryColor } as React.CSSProperties}
+			className="max-w-lg mx-auto px-4 py-8"
+		>
 			<h1 className="text-2xl font-bold mb-6">チェックアウト</h1>
 
 			{items.length === 0 ? (
 				<p>カートに商品がありません。</p>
 			) : (
 				<form onSubmit={onSubmit} className="space-y-6">
-					{/* ─ カート内アイテム ─ */}
+					{/* カート内アイテム */}
 					<ul className="space-y-4">
 						{items.map((item) => (
 							<li key={item.id} className="flex justify-between">
@@ -66,13 +72,13 @@ export default function CheckoutForm({ placeOrder }: Props) {
 						))}
 					</ul>
 
-					{/* ─ 合計金額 ─ */}
+					{/* 合計金額 */}
 					<div className="flex justify-between text-lg font-semibold">
 						<span>合計</span>
 						<span>${totalPrice.toFixed(2)}</span>
 					</div>
 
-					{/* ─ テーブル番号入力 ─ */}
+					{/* テーブル番号入力 */}
 					<div>
 						<label htmlFor="tableNumber" className="block mb-1">
 							テーブル番号
@@ -87,11 +93,16 @@ export default function CheckoutForm({ placeOrder }: Props) {
 						/>
 					</div>
 
-					{/* ─ 注文ボタン ─ */}
+					{/* 注文ボタン */}
 					<button
 						type="submit"
 						disabled={isPending}
-						className="w-full py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
+						className="
+              w-full py-3 
+              bg-[var(--primary)] text-white rounded-lg 
+              hover:opacity-90 transition-opacity 
+              disabled:opacity-50
+            "
 					>
 						{isPending ? "送信中…" : "注文する"}
 					</button>
