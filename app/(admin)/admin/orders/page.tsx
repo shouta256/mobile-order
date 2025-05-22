@@ -2,26 +2,38 @@ import { prisma } from "@/lib/db";
 import { requireStaff } from "@/lib/auth";
 import { deleteOrder } from "./actions";
 
-export default async function AdminOrdersPage() {
+/** 1 ページ 20 件 */
+const PAGE_SIZE = 20;
+
+export default async function OrdersPage({
+	searchParams,
+}: {
+	searchParams: { page?: string };
+}) {
 	await requireStaff();
 
-	const ordersRaw = await prisma.order.findMany({
-		orderBy: { createdAt: "desc" },
-		include: {
-			user: true,
-			orderItems: { include: { menuItem: true } },
-		},
-	});
+	const page = Math.max(1, Number(searchParams.page ?? "1"));
+	const [ordersRaw, totalCount] = await Promise.all([
+		prisma.order.findMany({
+			orderBy: { createdAt: "desc" },
+			include: { user: true, orderItems: { include: { menuItem: true } } },
+			skip: (page - 1) * PAGE_SIZE,
+			take: PAGE_SIZE,
+		}),
+		prisma.order.count(),
+	]);
 
-	// Decimal → number 変換
+	/* Decimal → number once */
 	const orders = ordersRaw.map((o) => ({
 		...o,
-		total: o.total.toNumber?.() ?? (o.total as unknown as number),
+		total: o.total.toNumber(),
 		orderItems: o.orderItems.map((oi) => ({
 			...oi,
-			price: oi.price.toNumber?.() ?? (oi.price as unknown as number),
+			price: oi.price.toNumber(),
 		})),
 	}));
+
+	const pageMax = Math.ceil(totalCount / PAGE_SIZE);
 
 	// 注文ステータスに応じた色とラベルのマッピング
 	const statusConfig = {

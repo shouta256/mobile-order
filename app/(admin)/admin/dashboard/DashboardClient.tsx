@@ -2,7 +2,7 @@
 "use client";
 
 import SalesChart from "@/components/admin/SalesChart";
-import React from "react";
+import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 interface SalesDataPoint {
@@ -57,57 +57,52 @@ interface Props {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA336A"];
 
-export default function AdminDashboardClient({
-	totalOrders,
-	pendingOrders,
-	currentCustomers,
-	totalRevenue,
-	totalCustomers,
-	salesData,
-	pieChartData,
-	recentOrders,
-}: Props) {
+export default function DashboardClient(props: Props) {
+	/** ▼ memo 化して再レンダー時の計算を回避 */
+	const memoSales = useMemo(
+		() => props.salesData.map(({ date, sales }) => ({ date, sales })),
+		[props.salesData],
+	);
+
+	const memoPie = useMemo(() => props.pieChartData, [props.pieChartData]);
+
 	return (
 		<div className="p-8 space-y-12">
-			{/* 概要 */}
+			{/* ─ 概要カード ─ */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-				<div className="p-6 bg-white rounded shadow">
-					<h3 className="text-sm text-gray-500">総注文数</h3>
-					<p className="text-3xl font-bold">{totalOrders}</p>
-				</div>
-				<div className="p-6 bg-white rounded shadow">
-					<h3 className="text-sm text-gray-500">未完了注文</h3>
-					<p className="text-3xl font-bold">{pendingOrders}</p>
-				</div>
-				<div className="p-6 bg-white rounded shadow">
-					<h3 className="text-sm text-gray-500">現在の客数</h3>
-					<p className="text-3xl font-bold">{currentCustomers}</p>
-				</div>
-				<div className="p-6 bg-white rounded shadow">
-					<h3 className="text-sm text-gray-500">総売上</h3>
-					<p className="text-3xl font-bold">${totalRevenue.toFixed(2)}</p>
-				</div>
+				{[
+					{ l: "総注文数", v: props.totalOrders },
+					{ l: "未完了注文", v: props.pendingOrders },
+					{ l: "現在の客数", v: props.currentCustomers },
+					{
+						l: "総売上",
+						v: `$${props.totalRevenue.toFixed(2)}`,
+					},
+				].map(({ l, v }) => (
+					<div key={l} className="p-6 bg-white rounded shadow">
+						<h3 className="text-sm text-gray-500">{l}</h3>
+						<p className="text-3xl font-bold">{v}</p>
+					</div>
+				))}
 			</div>
 
-			{/* 売上グラフ */}
-			<SalesChart
-				salesData={salesData.map(({ date, sales }) => ({ date, sales }))}
-			/>
+			{/* ─ 売上グラフ ─ */}
+			<SalesChart salesData={memoSales} />
 
-			{/* 人気メニュー */}
+			{/* ─ 人気メニュー ─ */}
 			<div className="p-6 bg-white rounded shadow">
 				<h3 className="mb-4 font-medium">人気メニュー上位5</h3>
 				<ResponsiveContainer width="100%" height={200}>
 					<PieChart>
 						<Pie
-							data={pieChartData}
+							data={memoPie}
 							dataKey="value"
 							nameKey="name"
 							outerRadius={80}
 							label
 						>
-							{pieChartData.map((entry, idx) => (
-								<Cell key={entry.name} fill={COLORS[idx % COLORS.length]} />
+							{memoPie.map((entry, i) => (
+								<Cell key={entry.name} fill={COLORS[i % COLORS.length]} />
 							))}
 						</Pie>
 						<Tooltip />
@@ -115,7 +110,7 @@ export default function AdminDashboardClient({
 				</ResponsiveContainer>
 			</div>
 
-			{/* 最近の注文 */}
+			{/* ─ 最近の注文 (軽量化のため 5 件だけ) ─ */}
 			<div className="p-6 bg-white rounded shadow">
 				<h3 className="mb-4 font-medium">最近の注文</h3>
 				<table className="w-full text-left">
@@ -128,14 +123,14 @@ export default function AdminDashboardClient({
 						</tr>
 					</thead>
 					<tbody>
-						{recentOrders.map((order) => (
-							<tr key={order.id} className="border-t">
+						{props.recentOrders.map((o) => (
+							<tr key={o.id} className="border-t">
 								<td className="py-2">
-									{new Date(order.createdAt).toLocaleString()}
+									{new Date(o.createdAt).toLocaleString()}
 								</td>
-								<td className="py-2">{order.tableNumber}</td>
-								<td className="py-2">${order.total.toFixed(2)}</td>
-								<td className="py-2">{order.status}</td>
+								<td className="py-2">{o.tableNumber}</td>
+								<td className="py-2">¥{o.total.toFixed(0)}</td>
+								<td className="py-2">{o.status}</td>
 							</tr>
 						))}
 					</tbody>
