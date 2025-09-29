@@ -38,14 +38,14 @@ export const authOptions: AuthOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-			// profile.picture をそのまま使う
+			// Google の profile には role が存在しないため CUSTOMER をデフォルト付与
 			profile(profile): User {
 				return {
 					id: profile.sub,
 					name: profile.name,
 					email: profile.email,
 					image: profile.picture,
-					role: profile.role,
+					role: "CUSTOMER",
 				};
 			},
 		}),
