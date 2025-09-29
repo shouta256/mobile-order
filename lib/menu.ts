@@ -16,15 +16,15 @@ export type MenuItem = {
 };
 
 export async function getFeaturedMenuItems() {
-	// 「featured: true」を追加。available も念のため絞っておく
+	// Only take featured items and check availability
 	const raw = await prisma.menuItem.findMany({
 		where: { featured: true, available: true },
 		orderBy: { createdAt: "desc" },
-		take: 6, // 最大何件見せたいか
-		include: { category: true }, // カテゴリ名も欲しいなら
+		take: 6, // Limit how many we show
+		include: { category: true }, // Include category name when needed
 	});
 
-	// Decimal → number に変換
+	// Convert Decimal to number
 	return raw.map((item) => ({
 		...item,
 		price:
@@ -37,7 +37,7 @@ export async function getFeaturedMenuItems() {
 export async function getMenuItems(): Promise<MenuItem[]> {
 	const items = await prisma.menuItem.findMany({
 		where: { available: true },
-		include: { category: true }, // ← カテゴリを含める
+		include: { category: true }, // Include category
 		orderBy: { name: "asc" },
 	});
 
@@ -62,7 +62,7 @@ export async function getMenuItems(): Promise<MenuItem[]> {
 export async function getMenuItem(id: string): Promise<MenuItem | null> {
 	const item = await prisma.menuItem.findUnique({
 		where: { id },
-		include: { category: true }, // ← カテゴリを含める
+		include: { category: true }, // Include category
 	});
 	if (!item) return null;
 

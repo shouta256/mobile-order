@@ -4,36 +4,36 @@
 import { requireAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { upsertSiteSetting } from "@/lib/settings";
-import { uploadImage } from "@/lib/cloudinary"; // 既に Cloudinary ヘルパーがある前提
+import { uploadImage } from "@/lib/cloudinary"; // We already have Cloudinary helper
 
 /**
- * サイト設定を保存（新規 / 更新）
+ * Save site setting (create or update)
  *
- * - 画像は「ファイルが送られて来たときのみ」Cloudinary にアップロード
- * - ファイル未選択の場合は hidden フィールド heroImageExisting の値をそのまま維持
- *   （SettingClient 側で hidden input を追加済みとする）
+ * - Upload image only when file is sent
+ * - Keep hidden heroImageExisting value when no new file
+ *   (SettingClient already sets the hidden input)
  */
 export async function saveSiteSetting(formData: FormData) {
-	// 1) 認可
+	// Step 1: check role
 	await requireAdmin();
 
-	/* ───────── 画像アップロード ───────── */
+	/* Image upload */
 	let heroImageUrl = formData.get("heroImageExisting") as string | null;
 
 	// <input type="file" name="heroImageFile" />
 	const file = formData.get("heroImageFile") as File | null;
 
 	if (file && file.size > 0) {
-		// バッファ → base64 DataURL にして Cloudinary へ
+		// Convert buffer to base64 data URL and send to Cloudinary
 		const buffer = Buffer.from(await file.arrayBuffer());
 		const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-		// cloudinary.ts の uploadImage は { image, thumbnail } を返す想定
+		// cloudinary.ts uploadImage returns { image, thumbnail }
 		const { image } = await uploadImage(base64);
 		heroImageUrl = image;
 	}
 
-	/* ───────── DB へ upsert ───────── */
+	/* Save to database */
 	await upsertSiteSetting({
 		storeName: (formData.get("storeName") as string) ?? "",
 		heroText1: (formData.get("heroText1") as string) ?? "",

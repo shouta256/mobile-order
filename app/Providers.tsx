@@ -16,7 +16,7 @@ export default function Providers({ children, session }: ProvidersProps) {
 	return (
 		<SessionProvider
 			session={session}
-			// 60秒ごとにセッション情報を再フェッチ
+			// Fetch session again every 60 seconds
 			refetchInterval={60}
 			refetchOnWindowFocus={true}
 		>

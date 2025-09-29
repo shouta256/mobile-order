@@ -4,11 +4,11 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-	// ────────────────────────────────
-	// 1) 管理者（ADMIN）ユーザーをシード
-	// ────────────────────────────────
+	// -------------------------------
+	// 1) Seed admin user
+	// -------------------------------
 	const adminEmail = "admin@example.com";
-	const adminPlainPassword = "AdminPass123"; // 好きなパスワードに変更してください
+	const adminPlainPassword = "AdminPass123"; // Change to any password you like
 	const adminHash = await bcrypt.hash(adminPlainPassword, 10);
 
 	await prisma.user.upsert({
@@ -23,9 +23,9 @@ async function main() {
 	});
 	console.log(`✅ Admin user seeded: ${adminEmail} / ${adminPlainPassword}`);
 
-	// ────────────────────────────────
-	// 2) デモ用カスタマーをシード
-	// ────────────────────────────────
+	// -------------------------------
+	// 2) Seed demo customer
+	// -------------------------------
 	const customerEmail = "customer@example.com";
 	const customerPlainPassword = "Customer123";
 	const customerHash = await bcrypt.hash(customerPlainPassword, 10);
@@ -44,9 +44,9 @@ async function main() {
 		`✅ Customer user seeded: ${customerEmail} / ${customerPlainPassword}`,
 	);
 
-	// ────────────────────────────────
-	// 3) カテゴリデータ
-	// ────────────────────────────────
+	// -------------------------------
+	// 3) Category data
+	// -------------------------------
 	const categoriesData = [
 		{ name: "Burgers", description: "Juicy burgers made to order", order: 1 },
 		{ name: "Pizzas", description: "Authentic Italian pizzas", order: 2 },
@@ -69,15 +69,15 @@ async function main() {
 		);
 	}
 
-	// ────────────────────────────────
-	// 4) 過去7日間のデモ売上データを生成
-	// ────────────────────────────────
+	// -------------------------------
+	// 4) Create demo sales for past 7 days
+	// -------------------------------
 	const today = new Date();
 	for (let i = 1; i <= 7; i++) {
 		const orderDate = new Date(today);
 		orderDate.setDate(today.getDate() - i);
 
-		// ランダムに2～4アイテムを選択
+		// Pick 2 to 4 items at random
 		const shuffled = allMenuItems.sort(() => 0.5 - Math.random());
 		const orderItemsData = shuffled
 			.slice(0, Math.floor(Math.random() * 3) + 2)
@@ -112,9 +112,9 @@ async function main() {
 		});
 	}
 
-	// ────────────────────────────────
-	// 5) デフォルトのデザインを生成
-	// ────────────────────────────────
+	// -------------------------------
+	// 5) Create default design
+	// -------------------------------
 	const exists = await prisma.siteSetting.findFirst();
 	if (!exists) {
 		await prisma.siteSetting.create({

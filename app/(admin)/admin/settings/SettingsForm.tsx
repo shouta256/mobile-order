@@ -14,17 +14,17 @@ export default function SettingClient({
 	const [isPending, start] = useTransition();
 	const { toast } = useToast();
 
-	/* 選択中カラーの即時プレビュー用 */
+	/* Local color preview */
 	const [color, setColor] = useState<string>(
 		setting?.primaryColor ?? "#ff7a00",
 	);
 
-	/* 画像プレビュー用  */
+	/* Local image preview */
 	const [preview, setPreview] = useState<string | null>(
 		setting?.heroImage ?? null,
 	);
 
-	/* 送信 */
+	/* Handle submit */
 	function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const fd = new FormData(e.currentTarget);
@@ -40,7 +40,7 @@ export default function SettingClient({
 			className="space-y-4 max-w-lg"
 			encType="multipart/form-data"
 		>
-			{/* 基本テキスト */}
+			{/* Basic text fields */}
 			<input
 				name="storeName"
 				defaultValue={setting?.storeName ?? ""}
@@ -98,7 +98,7 @@ export default function SettingClient({
 						if (file) setPreview(URL.createObjectURL(file));
 					}}
 				/>
-				{/* 画像プレビュー */}
+				{/* Image preview */}
 				{preview && (
 					<img
 						src={preview}

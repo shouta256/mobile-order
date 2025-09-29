@@ -12,7 +12,7 @@ const FALLBACK_URL =
 	"https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
 
 export default async function HomePage() {
-	// サーバー側でログイン状態を取得
+	// Get login status on server
 	const [user, featuredItems, setting] = await Promise.all([
 		getCurrentUser(),
 		getFeaturedMenuItems(),

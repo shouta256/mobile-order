@@ -43,7 +43,7 @@ export function ToasterProvider({
 		(opts: ToastOptions) => {
 			const id = crypto.randomUUID();
 			setToasts((prev) => [...prev, { id, ...opts }]);
-			// 自動で消す場合はここでタイマーをセット
+			// Set timer here when auto close is needed
 			setTimeout(() => removeToast(id), 5000);
 		},
 		[removeToast],

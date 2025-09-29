@@ -4,14 +4,14 @@ import { requireAdmin } from "@/lib/auth";
 import MenuManagerClient from "./MenuManagerClient";
 
 export default async function AdminMenuPage() {
-	// 管理者チェック
+	// Check admin role
 	await requireAdmin();
 
-	// メニューアイテム取得
+	// Get menu items
 	const rawItems = await prisma.menuItem.findMany({
 		orderBy: { createdAt: "desc" },
 	});
-	// Decimal → number
+	// Convert Decimal to number
 	const items = rawItems.map((item) => ({
 		...item,
 		price:
@@ -20,7 +20,7 @@ export default async function AdminMenuPage() {
 				: Number(item.price),
 	}));
 
-	// カテゴリ一覧取得
+	// Get category list
 	const rawCategories = await prisma.category.findMany({
 		orderBy: { order: "asc" },
 	});

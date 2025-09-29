@@ -7,7 +7,7 @@ interface Params {
 	id: string;
 }
 
-// 静的生成用パス
+// Paths for static build
 export async function generateStaticParams(): Promise<Params[]> {
 	const items = await getMenuItems();
 	return items.map((item) => ({ id: item.id }));

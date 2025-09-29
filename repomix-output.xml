@@ -32,7 +32,7 @@ The content is organized as follows:
 <notes>
 - Some files may have been excluded based on .gitignore rules and Repomix's configuration
 - Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
-- Only files matching these patterns are included: prisma
+- Only files matching these patterns are included: lib/**
 - Files matching patterns in .gitignore are excluded
 - Files matching default ignore patterns are excluded
 - Files are sorted by Git change count (files with more changes are at the bottom)
@@ -41,782 +41,463 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
-prisma/
-  migrations/
-    20250516033241_init/
-      migration.sql
-    20250519145758_add_user_orders_relation/
-      migration.sql
-    20250519155955_add_table_number_to_order/
-      migration.sql
-    20250519165932_add_user_role/
-      migration.sql
-    20250519170926_add_user_password_field/
-      migration.sql
-    migration_lock.toml
-  schema.prisma
-  seed.js
-  seed.mjs
-  seed.ts
+lib/
+  auth.ts
+  authOptions.ts
+  authServer.ts
+  cloudinary.ts
+  db.ts
+  menu.ts
+  settings.ts
+  utils.ts
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
 
-<file path="prisma/migrations/20250516033241_init/migration.sql">
--- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'STAFF', 'CUSTOMER');
+<file path="lib/auth.ts">
+// lib/auth.ts
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./authOptions";
+import { prisma } from "./db";
+import { notFound } from "next/navigation";
+import { hash, compare } from "bcrypt";
 
--- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PREPARING', 'READY', 'DELIVERED', 'COMPLETED', 'CANCELLED');
-
--- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'PAID', 'FAILED', 'REFUNDED');
-
--- CreateEnum
-CREATE TYPE "ChallengeType" AS ENUM ('ORDER_COUNT', 'SPEND_AMOUNT', 'SPECIFIC_ITEMS');
-
--- CreateTable
-CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
-    "name" TEXT,
-    "email" TEXT NOT NULL,
-    "emailVerified" TIMESTAMP(3),
-    "password" TEXT NOT NULL,
-    "role" "UserRole" NOT NULL DEFAULT 'CUSTOMER',
-    "image" TEXT,
-    "address" TEXT,
-    "phone" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Category" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "image" TEXT,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "MenuItem" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "price" DECIMAL(10,2) NOT NULL,
-    "image" TEXT,
-    "thumbnail" TEXT,
-    "available" BOOLEAN NOT NULL DEFAULT true,
-    "featured" BOOLEAN NOT NULL DEFAULT false,
-    "categoryId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "MenuItem_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Order" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
-    "total" DECIMAL(10,2) NOT NULL,
-    "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
-    "paymentMethod" TEXT,
-    "deliveryAddress" TEXT,
-    "note" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "OrderItem" (
-    "id" TEXT NOT NULL,
-    "orderId" TEXT NOT NULL,
-    "menuItemId" TEXT NOT NULL,
-    "quantity" INTEGER NOT NULL,
-    "price" DECIMAL(10,2) NOT NULL,
-    "note" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Challenge" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "target" INTEGER NOT NULL,
-    "type" "ChallengeType" NOT NULL,
-    "reward" TEXT NOT NULL,
-    "rewardValue" DECIMAL(10,2),
-    "startDate" TIMESTAMP(3) NOT NULL,
-    "endDate" TIMESTAMP(3) NOT NULL,
-    "active" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Challenge_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "ChallengeProgress" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "challengeId" TEXT NOT NULL,
-    "progress" INTEGER NOT NULL DEFAULT 0,
-    "completed" BOOLEAN NOT NULL DEFAULT false,
-    "rewardClaimed" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "ChallengeProgress_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "DailySales" (
-    "id" TEXT NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
-    "totalSales" DECIMAL(10,2) NOT NULL,
-    "orderCount" INTEGER NOT NULL,
-    "averageOrder" DECIMAL(10,2) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "DailySales_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "ChallengeProgress_userId_challengeId_key" ON "ChallengeProgress"("userId", "challengeId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "DailySales_date_key" ON "DailySales"("date");
-
--- AddForeignKey
-ALTER TABLE "MenuItem" ADD CONSTRAINT "MenuItem_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_menuItemId_fkey" FOREIGN KEY ("menuItemId") REFERENCES "MenuItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ChallengeProgress" ADD CONSTRAINT "ChallengeProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ChallengeProgress" ADD CONSTRAINT "ChallengeProgress_challengeId_fkey" FOREIGN KEY ("challengeId") REFERENCES "Challenge"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-</file>
-
-<file path="prisma/migrations/20250519145758_add_user_orders_relation/migration.sql">
-/*
-  Warnings:
-
-  - You are about to drop the column `address` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `createdAt` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `password` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `phone` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `role` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `updatedAt` on the `User` table. All the data in the column will be lost.
-
-*/
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "address",
-DROP COLUMN "createdAt",
-DROP COLUMN "password",
-DROP COLUMN "phone",
-DROP COLUMN "role",
-DROP COLUMN "updatedAt",
-ALTER COLUMN "email" DROP NOT NULL;
-
--- DropEnum
-DROP TYPE "UserRole";
-
--- CreateTable
-CREATE TABLE "Account" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "provider" TEXT NOT NULL,
-    "providerAccountId" TEXT NOT NULL,
-    "refresh_token" TEXT,
-    "access_token" TEXT,
-    "expires_at" INTEGER,
-    "token_type" TEXT,
-    "scope" TEXT,
-    "id_token" TEXT,
-    "session_state" TEXT,
-
-    CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Session" (
-    "id" TEXT NOT NULL,
-    "sessionToken" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "VerificationToken" (
-    "identifier" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
-
--- CreateIndex
-CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
-
--- AddForeignKey
-ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-</file>
-
-<file path="prisma/migrations/20250519155955_add_table_number_to_order/migration.sql">
-/*
-  Warnings:
-
-  - You are about to drop the column `deliveryAddress` on the `Order` table. All the data in the column will be lost.
-
-*/
--- AlterTable
-ALTER TABLE "Order" DROP COLUMN "deliveryAddress",
-ADD COLUMN     "tableNumber" TEXT NOT NULL DEFAULT '';
-</file>
-
-<file path="prisma/migrations/20250519165932_add_user_role/migration.sql">
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "role" TEXT NOT NULL DEFAULT 'CUSTOMER';
-</file>
-
-<file path="prisma/migrations/20250519170926_add_user_password_field/migration.sql">
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "password" TEXT NOT NULL DEFAULT '';
-</file>
-
-<file path="prisma/migrations/migration_lock.toml">
-# Please do not edit this file manually
-# It should be added in your version-control system (i.e. Git)
-provider = "postgresql"
-</file>
-
-<file path="prisma/schema.prisma">
-// schema.prisma
-
-generator client {
-  provider   = "prisma-client-js"
-  engineType = "dataproxy"
+export async function getCurrentUser() {
+	const session = await getServerSession(authOptions);
+	if (!session?.user?.id) return null;
+	return prisma.user.findUnique({ where: { id: session.user.id } });
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+/** 「STAFF か ADMIN」なら通す */
+export async function requireStaff() {
+	const user = await getCurrentUser();
+	if (!user || (user.role !== "STAFF" && user.role !== "ADMIN")) {
+		// 権限無し → 404 と同じ挙動
+		notFound();
+	}
+	return user;
 }
 
-// -----------------------------
-// NextAuth 用モデル
-// -----------------------------
-model User {
-  id                String              @id @default(cuid())
-  name              String?
-  email             String?             @unique
-  password          String              @default("")
-  emailVerified     DateTime?
-  image             String?
-  role              String              @default("CUSTOMER")
-  accounts          Account[]
-  sessions          Session[]
-  orders            Order[]
-  challengeProgress ChallengeProgress[]
+/** もし本当に ADMIN 専用が欲しい時だけ使う */
+export async function requireAdmin() {
+	const user = await getCurrentUser();
+	if (!user || user.role !== "ADMIN") {
+		notFound();
+	}
+	return user;
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+/**
+ * 平文パスワードをハッシュ化
+ */
+export async function hashPassword(password: string): Promise<string> {
+	const SALT_ROUNDS = 12;
+	return await hash(password, SALT_ROUNDS);
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-// -----------------------------
-// アプリケーション固有モデル
-// -----------------------------
-model Category {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  image       String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  menuItems MenuItem[]
-}
-
-model MenuItem {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal  @db.Decimal(10, 2)
-  image       String?
-  thumbnail   String?
-  available   Boolean  @default(true)
-  featured    Boolean  @default(false)
-  categoryId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category   Category    @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
-}
-
-model Order {
-  id              String        @id @default(cuid())
-  userId          String
-  status          OrderStatus   @default(PENDING)
-  total           Decimal       @db.Decimal(10, 2)
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentMethod   String?
-  tableNumber   String   @default("")
-  note            String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  user       User        @relation(fields: [userId], references: [id])
-  orderItems OrderItem[]
-}
-
-model OrderItem {
-  id         String   @id @default(cuid())
-  orderId    String
-  menuItemId String
-  quantity   Int
-  price      Decimal  @db.Decimal(10, 2)
-  note       String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
-}
-
-enum OrderStatus {
-  PENDING
-  PREPARING
-  READY
-  DELIVERED
-  COMPLETED
-  CANCELLED
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
-
-model Challenge {
-  id          String        @id @default(cuid())
-  name        String
-  description String
-  target      Int // e.g., 注文回数 or 金額
-  type        ChallengeType
-  reward      String
-  rewardValue Decimal?      @db.Decimal(10, 2)
-  startDate   DateTime
-  endDate     DateTime
-  active      Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  progress ChallengeProgress[]
-}
-
-model ChallengeProgress {
-  id            String   @id @default(cuid())
-  userId        String
-  challengeId   String
-  progress      Int      @default(0)
-  completed     Boolean  @default(false)
-  rewardClaimed Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user      User      @relation(fields: [userId], references: [id])
-  challenge Challenge @relation(fields: [challengeId], references: [id])
-
-  @@unique([userId, challengeId])
-}
-
-enum ChallengeType {
-  ORDER_COUNT
-  SPEND_AMOUNT
-  SPECIFIC_ITEMS
-}
-
-model DailySales {
-  id           String   @id @default(cuid())
-  date         DateTime @unique
-  totalSales   Decimal  @db.Decimal(10, 2)
-  orderCount   Int
-  averageOrder Decimal  @db.Decimal(10, 2)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+/**
+ * 平文パスワードとハッシュを比較
+ */
+export async function verifyPassword(
+	password: string,
+	hashedPassword: string,
+): Promise<boolean> {
+	return await compare(password, hashedPassword);
 }
 </file>
 
-<file path="prisma/seed.js">
-import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+<file path="lib/authServer.ts">
+// lib/auth-server.ts
 
-const prisma = new PrismaClient();
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { prisma } from "./db";
+import { hashPassword, verifyPassword } from "./auth";
+import type { User } from "@prisma/client";
 
-async function main() {
-	// ────────────────────────────────
-	// 1) 管理者（STAFF）ユーザーをシード
-	// ────────────────────────────────
-	const adminEmail = "admin@example.com";
-	const adminPlainPassword = "AdminPass123"; // 好きなパスワードに変更してください
-	const adminHash = await bcrypt.hash(adminPlainPassword, 10);
+/**
+ * 新規ユーザー登録を行い、
+ * セッション用の cookie (userId) をセットします。
+ */
+export async function signUp(email: string, password: string, name: string) {
+	// 既に同一メールアドレスのユーザーがいないかチェック
+	const existing = await prisma.user.findUnique({ where: { email } });
+	if (existing) {
+		throw new Error("User already exists");
+	}
 
-	await prisma.user.upsert({
-		where: { email: adminEmail },
-		update: {}, // 既に存在する場合は何もしない
-		create: {
-			email: adminEmail,
-			name: "店舗スタッフ（管理者）",
-			password: adminHash,
-			role: "ADMIN", // Prisma スキーマで @default("CUSTOMER") としている想定
-			// 必要に応じて他フィールドも追加 (image, emailVerified など)
+	// パスワードをハッシュ化
+	const hashed = await hashPassword(password);
+
+	// ユーザーを作成
+	const user = await prisma.user.create({
+		data: {
+			email,
+			password: hashed,
+			name,
 		},
 	});
-	console.log(`✅ Admin user seeded: ${adminEmail} / ${adminPlainPassword}`);
 
-	// ────────────────────────────────
-	// 2) カテゴリデータ
-	// ────────────────────────────────
-	const categoriesData = [
-		{ name: "Burgers", description: "Juicy burgers made to order", order: 1 },
-		{ name: "Pizzas", description: "Authentic Italian pizzas", order: 2 },
-		{ name: "Drinks", description: "Cold and refreshing beverages", order: 3 },
-	];
+	// クッキーに userId をセット（HTTP Only, 1 週間有効）
+	const cookieStore = cookies();
+	cookieStore.set("userId", user.id, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		maxAge: 60 * 60 * 24 * 7,
+		path: "/",
+	});
 
-	for (const data of categoriesData) {
-		const exists = await prisma.category.findFirst({
-			where: { name: data.name },
+	// パスワードは返さない
+	const { password: _, ...rest } = user;
+	return rest as Omit<User, "password">;
+}
+
+/**
+ * メール／パスワードでのサインイン。
+ * 成功すれば cookie をセットします。
+ */
+export async function signIn(email: string, password: string) {
+	const user = await prisma.user.findUnique({ where: { email } });
+	if (!user) {
+		throw new Error("User not found");
+	}
+
+	const isValid = await verifyPassword(password, user.password);
+	if (!isValid) {
+		throw new Error("Invalid password");
+	}
+
+	// cookie に userId をセット
+	const cookieStore = cookies();
+	cookieStore.set("userId", user.id, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		maxAge: 60 * 60 * 24 * 7,
+		path: "/",
+	});
+
+	const { password: _, ...rest } = user;
+	return rest as Omit<User, "password">;
+}
+
+/**
+ * サインアウト。cookie を削除してトップへリダイレクト。
+ */
+export async function signOut() {
+	const cookieStore = cookies();
+	cookieStore.delete("userId");
+	redirect("/");
+}
+
+/**
+ * 現在のユーザー情報を取得（パスワードは除く）。
+ * ログインしていなければ null を返します。
+ */
+export async function getCurrentUser(): Promise<Omit<User, "password"> | null> {
+	const cookieStore = cookies();
+	const userId = cookieStore.get("userId")?.value;
+	if (!userId) return null;
+
+	const user = await prisma.user.findUnique({ where: { id: userId } });
+	if (!user) return null;
+	const { password: _, ...rest } = user;
+	return rest as Omit<User, "password">;
+}
+
+/**
+ * サーバー側のページ／API で「認証済みでなければサインインページへ」。
+ */
+export async function requireAuth() {
+	const user = await getCurrentUser();
+	if (!user) {
+		redirect("/auth/signin");
+	}
+	return user;
+}
+
+/**
+ * 「ADMIN ロール限定ページ」で使うガード
+ */
+export async function requireAdmin() {
+	const user = await getCurrentUser();
+	if (!user || user.role !== "ADMIN") {
+		redirect("/auth/signin");
+	}
+	return user;
+}
+</file>
+
+<file path="lib/db.ts">
+import { PrismaClient } from '@prisma/client';
+
+// PrismaClient is attached to the `global` object in development to prevent
+// exhausting your database connection limit.
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+export default prisma;
+</file>
+
+<file path="lib/settings.ts">
+// lib/settings.ts
+import { prisma } from "@/lib/db";
+
+export type SiteSetting = NonNullable<
+	Awaited<ReturnType<typeof getSiteSetting>>
+>;
+
+export async function getSiteSetting() {
+	return prisma.siteSetting.findFirst();
+}
+
+export async function upsertSiteSetting(data: Partial<SiteSetting>) {
+	const existing = await getSiteSetting();
+	if (existing) {
+		await prisma.siteSetting.update({ where: { id: existing.id }, data });
+	} else {
+		await prisma.siteSetting.create({ data });
+	}
+}
+</file>
+
+<file path="lib/utils.ts">
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+</file>
+
+<file path="lib/authOptions.ts">
+// lib/authOptions.ts
+import NextAuth, { type AuthOptions, type User } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "./db";
+import { compare } from "bcrypt";
+
+export const authOptions: AuthOptions = {
+	adapter: PrismaAdapter(prisma),
+
+	// JWT セッション
+	session: { strategy: "jwt" },
+
+	providers: [
+		// Email/Password
+		CredentialsProvider({
+			name: "Credentials",
+			credentials: {
+				email: { label: "Email", type: "email" },
+				password: { label: "Password", type: "password" },
+			},
+			async authorize(credentials) {
+				if (!credentials?.email || !credentials?.password) {
+					throw new Error("Invalid credentials");
+				}
+				const user = await prisma.user.findUnique({
+					where: { email: credentials.email },
+				});
+				if (!user) throw new Error("User not found");
+				const isValid = await compare(credentials.password, user.password);
+				if (!isValid) throw new Error("Invalid password");
+				return user;
+			},
+		}),
+
+		// Google OAuth
+		GoogleProvider({
+			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+			// profile.picture をそのまま使う
+			profile(profile): User {
+				return {
+					id: profile.sub,
+					name: profile.name,
+					email: profile.email,
+					image: profile.picture,
+					role: profile.role,
+				};
+			},
+		}),
+	],
+
+	callbacks: {
+		// JWT に user.id, role, picture を乗せる
+		async jwt({ token, user }) {
+			if (user) {
+				token.id = user.id;
+				token.role = (user as User).role;
+				token.picture = (user as User).image;
+			}
+			return token;
+		},
+		// Session に上記をマッピング
+		async session({ session, token }) {
+			if (session.user) {
+				session.user.id = token.id as string;
+				session.user.role = token.role as string;
+				session.user.image = token.picture as string;
+			}
+			return session;
+		},
+	},
+
+	events: {
+		// 新規ユーザーにはデフォルト ROLE をセット
+		createUser: async ({ user }) => {
+			await prisma.user.update({
+				where: { id: user.id },
+				data: { role: "CUSTOMER" },
+			});
+		},
+	},
+};
+
+export default NextAuth(authOptions);
+</file>
+
+<file path="lib/cloudinary.ts">
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export async function uploadImage(imageData: string) {
+	try {
+		const result = await cloudinary.uploader.upload(imageData, {
+			folder: "menu-items",
+			transformation: [
+				{ width: 1000, crop: "limit" }, // Original size
+			],
 		});
-		if (!exists) {
-			await prisma.category.create({ data });
-		}
-	}
 
-	const burgerCat = await prisma.category.findFirst({
-		where: { name: "Burgers" },
-	});
-	const pizzaCat = await prisma.category.findFirst({
-		where: { name: "Pizzas" },
-	});
-	const drinksCat = await prisma.category.findFirst({
-		where: { name: "Drinks" },
-	});
-
-	if (!burgerCat || !pizzaCat || !drinksCat) {
-		throw new Error("カテゴリの取得に失敗しました");
-	}
-
-	// ────────────────────────────────
-	// 3) メニューアイテムデータ
-	// ────────────────────────────────
-	const menuItemsData = [
-		{
-			name: "Classic Cheeseburger",
-			description: "Beef patty with cheddar, lettuce, tomato & pickles",
-			price: 8.99,
-			categoryId: burgerCat.id,
-			available: true,
-			featured: true,
-		},
-		{
-			name: "Veggie Burger",
-			description: "Grilled veggie patty with avocado spread",
-			price: 9.49,
-			categoryId: burgerCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Margherita Pizza",
-			description: "Tomato, mozzarella, fresh basil",
-			price: 12.99,
-			categoryId: pizzaCat.id,
-			available: true,
-			featured: true,
-		},
-		{
-			name: "Pepperoni Pizza",
-			description: "Classic pepperoni & cheese",
-			price: 14.49,
-			categoryId: pizzaCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Cola",
-			description: "Sparkling soft drink",
-			price: 1.99,
-			categoryId: drinksCat.id,
-			available: true,
-			featured: false,
-		},
-		{
-			name: "Orange Juice",
-			description: "Freshly squeezed orange juice",
-			price: 2.99,
-			categoryId: drinksCat.id,
-			available: true,
-			featured: false,
-		},
-	];
-
-	for (const item of menuItemsData) {
-		const exists = await prisma.menuItem.findFirst({
-			where: { name: item.name },
+		// Generate thumbnail
+		const thumbnail = await cloudinary.uploader.upload(imageData, {
+			folder: "menu-items/thumbnails",
+			transformation: [
+				{ width: 300, height: 300, crop: "fill", gravity: "auto" },
+			],
 		});
-		if (!exists) {
-			await prisma.menuItem.create({ data: item });
-		}
+
+		return {
+			image: result.secure_url,
+			thumbnail: thumbnail.secure_url,
+			publicId: result.public_id,
+		};
+	} catch (error) {
+		console.error("Error uploading image to Cloudinary:", error);
+		throw new Error("Failed to upload image");
 	}
-
-	console.log("✅ シードデータの投入が完了しました");
 }
 
-main()
-	.catch((e) => {
-		console.error("❌ シード中にエラーが発生しました:", e);
-		process.exit(1);
-	})
-	.finally(async () => {
-		await prisma.$disconnect();
+export async function deleteImage(publicId: string) {
+	try {
+		await cloudinary.uploader.destroy(publicId);
+		await cloudinary.uploader.destroy(
+			`${publicId.split("/")[0]}/thumbnails/${publicId.split("/")[1]}`,
+		);
+	} catch (error) {
+		console.error("Error deleting image from Cloudinary:", error);
+		throw new Error("Failed to delete image");
+	}
+}
+</file>
+
+<file path="lib/menu.ts">
+// lib/menu.ts
+import { prisma } from "./db";
+
+export type MenuItem = {
+	id: string;
+	name: string;
+	description: string | null;
+	price: number;
+	image: string | null;
+	thumbnail: string | null;
+	available: boolean;
+	featured: boolean;
+	category: { id: string; name: string };
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+export async function getFeaturedMenuItems() {
+	// 「featured: true」を追加。available も念のため絞っておく
+	const raw = await prisma.menuItem.findMany({
+		where: { featured: true, available: true },
+		orderBy: { createdAt: "desc" },
+		take: 6, // 最大何件見せたいか
+		include: { category: true }, // カテゴリ名も欲しいなら
 	});
-</file>
 
-<file path="prisma/seed.mjs">
-// prisma/seed.mjs
-import 'dotenv/config'
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
-
-async function main() {
-  // ① すでに同じ name のレコードがあるか探す
-  let burger = await prisma.category.findFirst({
-    where: { name: 'Burgers' }
-  })
-
-  // ② なければ作る
-  if (!burger) {
-    burger = await prisma.category.create({
-      data: {
-        name: 'Burgers',
-        description: 'Juicy burgers',
-        order: 1
-      }
-    })
-  }
-
-  // メニュー項目の投入（image は必ず文字列 URL を入れてください）
-  await prisma.menuItem.upsert({
-    where: { name: 'Classic Burger' },
-    update: {},
-    create: {
-      name: 'Classic Burger',
-      description: 'A tasty beef burger',
-      price: 8.99,
-      available: true,
-      featured: true,
-      categoryId: burger.id,
-      image:
-        'https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg',
-      thumbnail:
-        'https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg',
-    },
-  })
+	// Decimal → number に変換
+	return raw.map((item) => ({
+		...item,
+		price:
+			typeof item.price.toNumber === "function"
+				? item.price.toNumber()
+				: Number(item.price),
+	}));
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(() => prisma.$disconnect())
-</file>
+export async function getMenuItems(): Promise<MenuItem[]> {
+	const items = await prisma.menuItem.findMany({
+		where: { available: true },
+		include: { category: true }, // ← カテゴリを含める
+		orderBy: { name: "asc" },
+	});
 
-<file path="prisma/seed.ts">
-// prisma/seed.js
-
-// 環境変数を読み込む（.env ファイル）
-require('dotenv').config();
-
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
-async function main() {
-  // ===== カテゴリーの初期データ =====
-  const categoriesData = [
-    { name: 'Burgers', description: 'Juicy burgers made to order', order: 1 },
-    { name: 'Pizzas', description: 'Authentic Italian pizzas', order: 2 },
-    { name: 'Drinks', description: 'Cold and refreshing beverages', order: 3 },
-  ];
-
-  for (const data of categoriesData) {
-    await prisma.category.upsert({
-      where: { name: data.name },
-      update: {},
-      create: data,
-    });
-  }
-
-  // カテゴリー ID を取得
-  const burgerCategory = await prisma.category.findUnique({ where: { name: 'Burgers' } });
-  const pizzaCategory  = await prisma.category.findUnique({ where: { name: 'Pizzas' } });
-  const drinksCategory = await prisma.category.findUnique({ where: { name: 'Drinks' } });
-
-  if (!burgerCategory || !pizzaCategory || !drinksCategory) {
-    throw new Error('カテゴリーの取得に失敗しました');
-  }
-
-  // ===== メニューアイテムの初期データ =====
-  const menuItemsData = [
-    {
-      name: 'Classic Cheeseburger',
-      description: 'Beef patty with cheddar, lettuce, tomato & pickles',
-      price: 8.99,
-      categoryId: burgerCategory.id,
-      available: true,
-      featured: true,
-    },
-    {
-      name: 'Veggie Burger',
-      description: 'Grilled veggie patty with avocado spread',
-      price: 9.49,
-      categoryId: burgerCategory.id,
-      available: true,
-      featured: false,
-    },
-    {
-      name: 'Margherita Pizza',
-      description: 'Tomato, mozzarella, fresh basil',
-      price: 12.99,
-      categoryId: pizzaCategory.id,
-      available: true,
-      featured: true,
-    },
-    {
-      name: 'Pepperoni Pizza',
-      description: 'Classic pepperoni & cheese',
-      price: 14.49,
-      categoryId: pizzaCategory.id,
-      available: true,
-      featured: false,
-    },
-    {
-      name: 'Cola',
-      description: 'Sparkling soft drink',
-      price: 1.99,
-      categoryId: drinksCategory.id,
-      available: true,
-      featured: false,
-    },
-    {
-      name: 'Orange Juice',
-      description: 'Freshly squeezed orange juice',
-      price: 2.99,
-      categoryId: drinksCategory.id,
-      available: true,
-      featured: false,
-    },
-  ];
-
-  for (const item of menuItemsData) {
-    await prisma.menuItem.upsert({
-      where: { name: item.name },
-      update: {},
-      create: item,
-    });
-  }
-
-  console.log('✅ シードデータの投入が完了しました');
+	return items.map((item) => ({
+		id: item.id,
+		name: item.name,
+		description: item.description,
+		price: item.price.toNumber(),
+		image: item.image,
+		thumbnail: item.thumbnail,
+		available: item.available,
+		featured: item.featured,
+		category: {
+			id: item.category.id,
+			name: item.category.name,
+		},
+		createdAt: item.createdAt,
+		updatedAt: item.updatedAt,
+	}));
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ シード中にエラーが発生しました:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+export async function getMenuItem(id: string): Promise<MenuItem | null> {
+	const item = await prisma.menuItem.findUnique({
+		where: { id },
+		include: { category: true }, // ← カテゴリを含める
+	});
+	if (!item) return null;
+
+	return {
+		id: item.id,
+		name: item.name,
+		description: item.description,
+		price: item.price.toNumber(),
+		image: item.image,
+		thumbnail: item.thumbnail,
+		available: item.available,
+		featured: item.featured,
+		category: {
+			id: item.category.id,
+			name: item.category.name,
+		},
+		createdAt: item.createdAt,
+		updatedAt: item.updatedAt,
+	};
+}
 </file>
 
 </files>

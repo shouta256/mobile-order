@@ -9,18 +9,18 @@ export default async function AdminLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	// STAFF or ADMIN 以外は signin へ
+	// Redirect to sign-in if not STAFF or ADMIN
 	const user = await getCurrentUser();
 	if (!user || (user.role !== "STAFF" && user.role !== "ADMIN")) {
 		redirect("/auth/signin");
 	}
-	// STAFF でも ADMIN でもアクセス OK
+	// STAFF and ADMIN can continue
 	return (
 		<>
-			{/* ルートの Header を再利用 */}
+			{/* Reuse main header */}
 			<Header />
 
-			{/* admin ページ固有のコンテナ */}
+			{/* Container for admin pages */}
 			<div className=" bg-gray-50 min-h-screen">
 				<main className="container mx-auto p-3">{children}</main>
 			</div>

@@ -50,7 +50,7 @@ export default function CheckoutForm({ placeOrder, primaryColor }: Props) {
 
 	return (
 		<div
-			// primaryColor を --primary にセット
+			// Set --primary custom color
 			style={{ "--primary": primaryColor } as React.CSSProperties}
 			className="max-w-lg mx-auto px-4 py-8"
 		>
@@ -59,8 +59,8 @@ export default function CheckoutForm({ placeOrder, primaryColor }: Props) {
 			{items.length === 0 ? (
 				<p>カートに商品がありません。</p>
 			) : (
-				<form onSubmit={onSubmit} className="space-y-6">
-					{/* カート内アイテム */}
+		<form onSubmit={onSubmit} className="space-y-6">
+			{/* Items in cart */}
 					<ul className="space-y-4">
 						{items.map((item) => (
 							<li key={item.id} className="flex justify-between">
@@ -72,13 +72,13 @@ export default function CheckoutForm({ placeOrder, primaryColor }: Props) {
 						))}
 					</ul>
 
-					{/* 合計金額 */}
+				{/* Total price */}
 					<div className="flex justify-between text-lg font-semibold">
 						<span>合計</span>
 						<span>${totalPrice.toFixed(2)}</span>
 					</div>
 
-					{/* テーブル番号入力 */}
+				{/* Table number input */}
 					<div>
 						<label htmlFor="tableNumber" className="block mb-1">
 							テーブル番号
@@ -93,7 +93,7 @@ export default function CheckoutForm({ placeOrder, primaryColor }: Props) {
 						/>
 					</div>
 
-					{/* 注文ボタン */}
+				{/* Submit order button */}
 					<button
 						type="submit"
 						disabled={isPending}

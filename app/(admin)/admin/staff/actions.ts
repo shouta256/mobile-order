@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-/** 新規スタッフ作成 */
+/** Create new staff */
 export async function createStaff(formData: FormData) {
 	await requireAdmin();
 	const email = formData.get("email") as string;
@@ -25,7 +25,7 @@ export async function createStaff(formData: FormData) {
 	revalidatePath("/admin/staff");
 }
 
-/** スタッフ情報更新（名前のみ簡易更新） */
+/** Update staff info (name only) */
 export async function updateStaff(formData: FormData) {
 	await requireAdmin();
 	const id = formData.get("id") as string;
@@ -36,7 +36,7 @@ export async function updateStaff(formData: FormData) {
 	revalidatePath("/admin/staff");
 }
 
-/** スタッフ削除 */
+/** Delete staff */
 export async function deleteStaff(formData: FormData) {
 	await requireAdmin();
 	const id = formData.get("id") as string;

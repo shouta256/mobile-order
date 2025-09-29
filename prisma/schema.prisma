@@ -11,7 +11,7 @@ datasource db {
 }
 
 // -----------------------------
-// NextAuth 用モデル
+// Models for NextAuth
 // -----------------------------
 model User {
   id                String              @id @default(cuid())
@@ -64,7 +64,7 @@ model VerificationToken {
 }
 
 // -----------------------------
-// アプリケーション固有モデル
+// App specific models
 // -----------------------------
 model Category {
   id          String   @id @default(cuid())
@@ -145,7 +145,7 @@ model Challenge {
   id          String        @id @default(cuid())
   name        String
   description String
-  target      Int // e.g., 注文回数 or 金額
+  target      Int // e.g., order count or price
   type        ChallengeType
   reward      String
   rewardValue Decimal?      @db.Decimal(10, 2)

@@ -7,11 +7,11 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function placeOrder(formData: FormData) {
-	// 1) ユーザー取得
+	// Step 1: get user
 	const user = await getCurrentUser();
 	if (!user) throw new Error("ログインが必要です");
 
-	// 2) FormData から値を取り出し
+	// Step 2: read data from FormData
 	const itemsJson = formData.get("items");
 	const totalPrice = formData.get("totalPrice");
 	const tableNumber = formData.get("tableNumber");
@@ -38,7 +38,7 @@ export async function placeOrder(formData: FormData) {
 
 	const uniqueItemIds = Array.from(new Set(items.map((item) => item.id)));
 
-	// 3) DB から最新の価格を取得
+	// Step 3: fetch latest prices from DB
 	const menuItems = await prisma.menuItem.findMany({
 		where: { id: { in: uniqueItemIds } },
 	});
@@ -77,7 +77,7 @@ export async function placeOrder(formData: FormData) {
 
 	const totalDecimal = recalculatedTotal.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
 
-	// 4) 注文を作成
+	// Step 4: create order
 	await prisma.order.create({
 		data: {
 			userId: user.id,
@@ -93,7 +93,7 @@ export async function placeOrder(formData: FormData) {
 		},
 	});
 
-	// キャッシュ再検証 & リダイレクト
+	// Revalidate cache and redirect
 	revalidatePath("/orders");
 	redirect("/orders");
 }

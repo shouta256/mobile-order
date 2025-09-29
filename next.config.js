@@ -6,7 +6,7 @@ const nextConfig = {
 	reactStrictMode: true,
 	swcMinify: true,
 
-	// ★ static export では動的 API が動かないので standalone へ
+  // Use standalone because static export cannot run dynamic API
 	output: "standalone",
 
 	eslint: {
@@ -18,7 +18,7 @@ const nextConfig = {
 		domains: [
 			"images.pexels.com",
 			"res.cloudinary.com",
-			// 必要に応じて他ドメインを追加
+        // Add more domains when needed
 		],
 	},
 };

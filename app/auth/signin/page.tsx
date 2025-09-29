@@ -28,7 +28,7 @@ export default function SignInPage() {
 				});
 			} else {
 				toast({ title: "ログイン成功", variant: "success" });
-				// リダイレクト
+				// Redirect user
 				window.location.href = "/";
 			}
 		});

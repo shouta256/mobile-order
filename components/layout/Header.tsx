@@ -10,7 +10,7 @@ const ProfileMenu = dynamic(() => import("./ProfileMenu"), {
 });
 
 export default async function Header() {
-	// サーバー側でセッションからユーザー取得
+	// Get user from session on server
 	const [user, setting] = await Promise.all([
 		getCurrentUser(),
 		getSiteSetting(),

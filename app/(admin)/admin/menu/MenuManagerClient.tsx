@@ -35,7 +35,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 	const router = useRouter();
 	const [isPending, start] = useTransition();
 
-	/** 新規作成ハンドラ */
+	/** Handler for create */
 	function onCreate(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const fd = new FormData(e.currentTarget);
@@ -54,7 +54,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 		});
 	}
 
-	/** 更新・削除共通ハンドラ */
+	/** Shared handler for update and delete */
 	function onSubmit(
 		e: React.FormEvent<HTMLFormElement>,
 		action: (fd: FormData) => Promise<void>,
@@ -78,7 +78,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 
 	return (
 		<div className="space-y-8">
-			{/* ── 新規メニュー登録フォーム ── */}
+			{/* New menu form */}
 			<section className="p-4 border rounded shadow-sm max-w-md">
 				<h3 className="mb-2 font-medium">新規メニュー登録</h3>
 				<form
@@ -158,14 +158,14 @@ export default function MenuManagerClient({ items, categories }: Props) {
 				</form>
 			</section>
 
-			{/* ── 既存メニュー一覧 ── */}
+			{/* Existing menu list */}
 			<section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 				{items.map((item) => (
 					<div
 						key={item.id}
 						className="bg-white border rounded-lg shadow hover:shadow-md transition flex flex-col"
 					>
-						{/* 画像：object-contain で元比率を保持 */}
+						{/* Image keeps original ratio */}
 						<div className="w-full h-32 relative">
 							{item.thumbnail ? (
 								<Image
@@ -180,8 +180,8 @@ export default function MenuManagerClient({ items, categories }: Props) {
 							)}
 						</div>
 
-						<div className="p-4 flex-1 flex flex-col">
-							{/* 編集フォーム */}
+					<div className="p-4 flex-1 flex flex-col">
+						{/* Edit form */}
 							<form
 								onSubmit={(e) =>
 									onSubmit(e, updateMenuItem, "メニューを更新しました")
@@ -191,7 +191,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 							>
 								<input type="hidden" name="id" value={item.id} />
 
-								{/* 説明フィールド */}
+							{/* Description area */}
 								<textarea
 									name="description"
 									defaultValue={item.description || ""}
@@ -258,7 +258,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 								</button>
 							</form>
 
-							{/* 削除フォーム */}
+							{/* Delete form */}
 							<form
 								onSubmit={(e) =>
 									onSubmit(e, deleteMenuItem, "メニューを削除しました")

@@ -9,7 +9,7 @@ import { compare } from "bcrypt";
 export const authOptions: AuthOptions = {
 	adapter: PrismaAdapter(prisma),
 
-	// JWT セッション
+	// Use JWT session
 	session: { strategy: "jwt" },
 
 	providers: [
@@ -38,7 +38,7 @@ export const authOptions: AuthOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-			// Google の profile には role が存在しないため CUSTOMER をデフォルト付与
+			// Google profile has no role, so set CUSTOMER
 			profile(profile): User {
 				return {
 					id: profile.sub,
@@ -52,7 +52,7 @@ export const authOptions: AuthOptions = {
 	],
 
 	callbacks: {
-		// JWT に user.id, role, picture を乗せる
+		// Add id, role, picture to JWT
 		async jwt({ token, user }) {
 			if (user) {
 				token.id = user.id;
@@ -61,7 +61,7 @@ export const authOptions: AuthOptions = {
 			}
 			return token;
 		},
-		// Session に上記をマッピング
+		// Copy from token to session
 		async session({ session, token }) {
 			if (session.user) {
 				session.user.id = token.id as string;
@@ -73,7 +73,7 @@ export const authOptions: AuthOptions = {
 	},
 
 	events: {
-		// 新規ユーザーにはデフォルト ROLE をセット
+		// Set default role for new users
 		createUser: async ({ user }) => {
 			await prisma.user.update({
 				where: { id: user.id },

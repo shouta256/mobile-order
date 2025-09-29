@@ -18,7 +18,7 @@ export default function ProfileMenu({ user }: ProfileMenuProps) {
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
-	// メニュー外クリックで閉じる
+	// Close menu when clicking outside
 	useEffect(() => {
 		const onClick = (e: MouseEvent) => {
 			if (ref.current && !ref.current.contains(e.target as Node)) {

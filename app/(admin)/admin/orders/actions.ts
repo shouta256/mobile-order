@@ -9,7 +9,7 @@ import { requireStaff } from "@/lib/auth";
 
 /** OrderEditForm.tsx から呼ばれている関数名に合わせる */
 export async function updateOrderDetail(formData: FormData) {
-  // 権限チェック（STAFF/ADMIN）
+  // Check STAFF or ADMIN role
   await requireStaff();
 
   const orderId = formData.get("id")?.toString();
@@ -21,10 +21,10 @@ export async function updateOrderDetail(formData: FormData) {
   }
   const status = statusRaw as OrderStatus;
 
-  // itemIds は複数回の同名キーで送られてくる
+  // itemIds comes multiple times with same key
   const itemIds = formData.getAll("itemIds").map((v) => v.toString());
 
-  // 数量のマップを作成（0 は削除対象とみなす）
+  // Build quantity map (0 means delete)
   const quantityMap: Record<string, number> = {};
   for (let i = 0; i < itemIds.length; i++) {
     const id = itemIds[i];
@@ -36,13 +36,13 @@ export async function updateOrderDetail(formData: FormData) {
     quantityMap[id] = qty;
   }
 
-  // 価格取得（合計再計算用）
+  // Load prices to recalc total
   const itemsForPricing = await prisma.orderItem.findMany({
     where: { id: { in: itemIds } },
     select: { id: true, price: true },
   });
 
-  // 合計を Decimal で再計算
+  // Recalculate total with Decimal
   let total = new Decimal(0);
   for (let i = 0; i < itemsForPricing.length; i++) {
     const it = itemsForPricing[i];
@@ -53,9 +53,9 @@ export async function updateOrderDetail(formData: FormData) {
   }
   const totalDecimal = total.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
 
-  // 一括トランザクション：数量更新/削除 + 注文の基本情報更新 + 合計更新
+  // Transaction: update or delete items and refresh order
   await prisma.$transaction(async (tx) => {
-    // 更新と削除を並列実行
+    // Handle updates and deletes
     const updatePromises: Promise<unknown>[] = [];
     const toDelete: string[] = [];
 
@@ -78,7 +78,7 @@ export async function updateOrderDetail(formData: FormData) {
       await tx.orderItem.deleteMany({ where: { id: { in: toDelete } } });
     }
 
-    // 注文のステータス/テーブル番号/合計更新
+    // Update order status, table, total
     await tx.order.update({
       where: { id: orderId },
       data: { tableNumber, status, total: totalDecimal.toFixed(2) },
@@ -90,7 +90,7 @@ export async function updateOrderDetail(formData: FormData) {
 
 /** page.tsx から呼ばれている名前に合わせる */
 export async function deleteOrder(formData: FormData) {
-  // 権限チェック（STAFF/ADMIN）
+  // Check STAFF or ADMIN role
   await requireStaff();
   const orderId = formData.get("id")?.toString();
   if (!orderId) throw new Error("ID がありません");

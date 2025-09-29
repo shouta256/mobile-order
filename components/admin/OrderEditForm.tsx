@@ -43,7 +43,7 @@ export default function OrderEditForm({ order }: { order: Order }) {
 		e.preventDefault();
 		start(async () => {
 			try {
-				// FormData にまとめる
+				// Build FormData payload
 				const formData = new FormData();
 				formData.append("id", order.id);
 				formData.append("tableNumber", tableNumber);

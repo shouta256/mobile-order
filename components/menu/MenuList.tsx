@@ -19,7 +19,7 @@ export default function MenuList({ items, primaryColor }: MenuListProps) {
 		{},
 	);
 
-	// cartItems が変わるたびに数量マップを再計算
+	// Make quantity map when cart changes
 	useEffect(() => {
 		const qtyMap: Record<string, number> = {};
 		for (const ci of cartItems) {
@@ -49,7 +49,7 @@ export default function MenuList({ items, primaryColor }: MenuListProps) {
 
 	return (
 		<div
-			// --primary カスタムプロパティに渡された色をセット
+			// Set custom color value
 			style={{ "--primary": primaryColor } as React.CSSProperties}
 			className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4 sm:gap-6 mt-6"
 		>
@@ -80,7 +80,7 @@ export default function MenuList({ items, primaryColor }: MenuListProps) {
 							<h3 className="font-semibold text-lg">
 								<Link
 									href={`/menu/${item.id}`}
-									// 商品名リンクの hover 色も --primary を参照
+									// Link hover uses same color
 									className="transition-colors hover:text-[var(--primary)]"
 								>
 									{item.name}
@@ -98,7 +98,7 @@ export default function MenuList({ items, primaryColor }: MenuListProps) {
 						<div className="mt-4">
 							{itemQuantities[item.id] > 0 ? (
 								<div className="flex items-center justify-between">
-									{/* マイナスボタン */}
+									{/* Minus button */}
 									<button
 										type="button"
 										onClick={() => handleRemove(item.id)}
@@ -109,7 +109,7 @@ export default function MenuList({ items, primaryColor }: MenuListProps) {
 
 									<span className="font-medium">{itemQuantities[item.id]}</span>
 
-									{/* プラスボタン */}
+									{/* Plus button */}
 									<button
 										type="button"
 										onClick={() => handleAdd(item)}

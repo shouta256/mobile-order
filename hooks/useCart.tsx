@@ -36,7 +36,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 	const [items, setItems] = useState<CartItem[]>([]);
 
-	// ────────── 初回読み込み ──────────
+	// First load from storage
 	useEffect(() => {
 		const raw = localStorage.getItem(storageKey);
 		if (raw) {
@@ -46,16 +46,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
 				localStorage.removeItem(storageKey);
 			}
 		} else {
-			setItems([]); // ユーザーが切り替わった場合に初期化
+			setItems([]); // Reset if user changes
 		}
-	}, [storageKey]); // userId が変わったら再実行
+	}, [storageKey]); // Run again when user id changes
 
-	// ────────── 保存 ──────────
+	// Save when items change
 	useEffect(() => {
 		localStorage.setItem(storageKey, JSON.stringify(items));
 	}, [items, storageKey]);
 
-	// ────────── 操作関数 ──────────
+	// Action helpers
 	const addToCart = useCallback((item: CartItem) => {
 		setItems((prev) => {
 			const ex = prev.find((i) => i.id === item.id);
@@ -72,14 +72,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		setItems((prev) => {
 			const existing = prev.find((i) => i.id === id);
 			if (!existing) {
-				// カートにないなら何もしない
+				// Item not found, do nothing
 				return prev;
 			}
 			if (existing.quantity <= 1) {
-				// 1 以下になったら配列から除外
+				// Remove when quantity is 1 or less
 				return prev.filter((i) => i.id !== id);
 			}
-			// それ以外は quantity を 1 減らす
+			// Else reduce quantity by one
 			return prev.map((i) =>
 				i.id === id ? { ...i, quantity: i.quantity - 1 } : i,
 			);

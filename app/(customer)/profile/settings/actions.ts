@@ -19,6 +19,6 @@ export async function updateProfile(formData: FormData) {
 		data: { name: name.trim() },
 	});
 
-	// このページを再検証
+	// Revalidate this page
 	revalidatePath("/profile/settings");
 }

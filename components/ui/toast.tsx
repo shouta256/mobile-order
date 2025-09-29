@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-// ─── ToastProvider / Viewport ───────────────────────────────────────────────
+// Toast provider and viewport
 
 export const ToastProvider = ToastPrimitives.Provider;
 
@@ -28,7 +28,7 @@ export const ToastViewport = React.forwardRef<
 ));
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
-// ─── Toast 本体のバリエーション定義 ────────────────────────────────────
+// Toast style variants
 
 const baseToastClasses =
 	"group pointer-events-auto relative flex w-full items-center justify-between " +
@@ -48,12 +48,12 @@ const baseToastClasses =
 const toastVariants = cva(baseToastClasses, {
 	variants: {
 		variant: {
-			// デフォルト（白背景／黒文字）
+			// Default (white background)
 			default: "border bg-background text-foreground",
-			// エラー（赤背景／白文字）
+			// Error (red background)
 			destructive:
 				"group border-destructive bg-destructive text-destructive-foreground",
-			// 成功（緑背景／白文字）
+			// Success (green background)
 			success: "border border-green-600 bg-green-600 text-white",
 		},
 	},
@@ -62,7 +62,7 @@ const toastVariants = cva(baseToastClasses, {
 	},
 });
 
-// ─── Toast コンポーネント ─────────────────────────────────────────────────
+// Toast component
 
 export const Toast = React.forwardRef<
 	React.ElementRef<typeof ToastPrimitives.Root>,

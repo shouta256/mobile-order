@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { requireStaff } from "@/lib/auth";
 import { deleteOrder } from "./actions";
 
-/** 1 ページ 20 件 */
+/** 20 items per page */
 const PAGE_SIZE = 20;
 
 export default async function OrdersPage({
@@ -23,7 +23,7 @@ export default async function OrdersPage({
 		prisma.order.count(),
 	]);
 
-	/* Decimal → number once */
+	/* Convert Decimal to number once */
 	const orders = ordersRaw.map((o) => ({
 		...o,
 		total: o.total.toNumber(),
@@ -35,7 +35,7 @@ export default async function OrdersPage({
 
 	const pageMax = Math.ceil(totalCount / PAGE_SIZE);
 
-	// 注文ステータスに応じた色とラベルのマッピング
+	// Map status to label and color
 	const statusConfig = {
 		PENDING: { color: "bg-yellow-100 text-yellow-800", label: "未処理" },
 		PREPARING: { color: "bg-blue-100 text-blue-800", label: "準備中" },
@@ -78,18 +78,18 @@ export default async function OrdersPage({
 							key={order.id}
 							className="bg-white rounded-lg shadow overflow-hidden"
 						>
-							{/* ヘッダー部分 */}
+							{/* Header area */}
 							<div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b">
 								<div className="flex items-center space-x-4">
-									{/* テーブル番号を目立たせる */}
+									{/* Highlight table number */}
 									<div className="flex-shrink-0">
 										<div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-indigo-200">
 											<span className="text-xl font-bold text-indigo-700">
 												{order.tableNumber || "-"}
 											</span>
 										</div>
-										<div className="text-xs text-center mt-1 font-medium text-gray-500">
-											テーブル
+									<div className="text-xs text-center mt-1 font-medium text-gray-500">
+										テーブル
 										</div>
 									</div>
 
@@ -116,21 +116,21 @@ export default async function OrdersPage({
 								</div>
 
 								<div className="flex items-center space-x-3">
-									{/* ステータスバッジ */}
+									{/* Status badge */}
 									<span
 										className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig[order.status]?.color || "bg-gray-100 text-gray-800"}`}
 									>
 										{statusConfig[order.status]?.label || order.status}
 									</span>
 
-									{/* 合計金額 */}
+									{/* Total price */}
 									<div className="text-lg font-bold text-gray-800">
 										¥{order.total.toFixed(2)}
 									</div>
 								</div>
 							</div>
 
-							{/* 注文アイテム一覧 */}
+							{/* Order items */}
 							<div className="px-6 py-4">
 								<h3 className="text-sm font-medium text-gray-500 mb-3">
 									注文内容
@@ -154,7 +154,7 @@ export default async function OrdersPage({
 								</ul>
 							</div>
 
-							{/* アクションエリア */}
+							{/* Action area */}
 							{order.status === "COMPLETED" ? (
 								<div className="bg-green-50 px-6 py-3 border-t border-green-100">
 									<p className="text-sm text-green-600 font-medium flex items-center">
@@ -178,12 +178,12 @@ export default async function OrdersPage({
 								</div>
 							) : (
 								<div className="bg-gray-50 px-6 py-3 border-t flex justify-between items-center">
-									<span className="text-sm text-gray-500">
-										注文ID: {order.id.substring(0, 8)}...
+										<span className="text-sm text-gray-500">
+											注文ID: {order.id.substring(0, 8)}...
 									</span>
 
 									<div className="flex items-center gap-3">
-										{/* 修正ボタン */}
+										{/* Edit button */}
 										<a
 											href={`/admin/orders/${order.id}`}
 											className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors"
@@ -191,7 +191,7 @@ export default async function OrdersPage({
 											修正
 										</a>
 
-										{/* 削除ボタン */}
+										{/* Delete button */}
 										<form action={deleteOrder}>
 											<input type="hidden" name="id" value={order.id} />
 											<button

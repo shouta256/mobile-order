@@ -21,7 +21,7 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	// サーバーサイドでセッションを取得して、クライアント側の SessionProvider に渡す
+	// Get session on server and pass to SessionProvider
 	const session = await getServerSession(authOptions);
 
 	return (

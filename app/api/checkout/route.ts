@@ -11,39 +11,39 @@ type OrderItem = {
 };
 
 export async function POST(req: Request) {
-	// リクエストボディからテーブル番号（または配送先）と注文アイテム、備考を受け取る
+	// Read table number, items, and note from request
 	const { items, note, tableNumber } = (await req.json()) as {
 		items: OrderItem[];
 		note?: string;
 		tableNumber: string;
 	};
 
-	// 認証ユーザー取得
+	// Get current user
 	const user = await getCurrentUser();
 	if (!user) {
 		return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
 	}
 
-	// 合計金額を計算
+	// Calculate total price
 	const total = items.reduce(
 		(sum: number, item: { price: number; quantity: number }) =>
 			sum + item.price * item.quantity,
 		0,
 	);
 
-	// Prisma の Decimal 型に変換
+	// Convert to Prisma Decimal
 	const { Decimal } = await import("decimal.js");
 	const totalDecimal = new Decimal(total);
 
-	// 注文を作成
+	// Create order
 	const order = await prisma.order.create({
 		data: {
 			userId: user.id,
 			total: totalDecimal,
 			status: "PENDING",
 			paymentStatus: "PENDING",
-			paymentMethod: "CARD", // 固定値か、フロントから渡す場合は外部化
-			tableNumber: tableNumber, // ここを deliveryAddress → tableNumber に変更
+			paymentMethod: "CARD", // Use fixed value, change if front sends data
+			tableNumber: tableNumber, // Was deliveryAddress, now tableNumber
 			note: note ?? "",
 			orderItems: {
 				create: items.map((item: OrderItem) => ({

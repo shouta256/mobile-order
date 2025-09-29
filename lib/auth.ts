@@ -11,17 +11,17 @@ export async function getCurrentUser() {
 	return prisma.user.findUnique({ where: { id: session.user.id } });
 }
 
-/** 「STAFF か ADMIN」なら通す */
+/** Allow only STAFF or ADMIN */
 export async function requireStaff() {
 	const user = await getCurrentUser();
 	if (!user || (user.role !== "STAFF" && user.role !== "ADMIN")) {
-		// 権限無し → 404 と同じ挙動
+		// No right, act like 404
 		notFound();
 	}
 	return user;
 }
 
-/** もし本当に ADMIN 専用が欲しい時だけ使う */
+/** Use when page is only for ADMIN */
 export async function requireAdmin() {
 	const user = await getCurrentUser();
 	if (!user || user.role !== "ADMIN") {
@@ -31,7 +31,7 @@ export async function requireAdmin() {
 }
 
 /**
- * 平文パスワードをハッシュ化
+ * Hash a plain password
  */
 export async function hashPassword(password: string): Promise<string> {
 	const SALT_ROUNDS = 12;
@@ -39,7 +39,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
- * 平文パスワードとハッシュを比較
+ * Check plain password with hash
  */
 export async function verifyPassword(
 	password: string,

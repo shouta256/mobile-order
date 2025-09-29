@@ -9,17 +9,17 @@ interface Params {
 }
 
 export default async function OrderEditPage({ params }: { params: Params }) {
-	// STAFF または ADMIN でないなら 404
+	// Only STAFF or ADMIN can see this page
 	await requireStaff();
 
-	// 注文データ取得
+	// Load order data
 	const orderRaw = await prisma.order.findUnique({
 		where: { id: params.id },
 		include: { orderItems: { include: { menuItem: true } } },
 	});
 	if (!orderRaw) return notFound();
 
-	// Decimal → number
+	// Convert Decimal to number
 	const order = {
 		id: orderRaw.id,
 		tableNumber: orderRaw.tableNumber ?? "",
@@ -31,6 +31,6 @@ export default async function OrderEditPage({ params }: { params: Params }) {
 		})),
 	};
 
-	// Client Component に投げる
+	// Pass to client component
 	return <OrderEditForm order={order} />;
 }

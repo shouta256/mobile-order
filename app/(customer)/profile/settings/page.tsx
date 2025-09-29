@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import SettingsForm from "./SettingsForm";
 
 export default async function SettingsPage() {
-	// サーバー側でログイン状態を取得
+	// Check login status on server
 	const user = await getCurrentUser();
 	if (!user) {
 		redirect("/auth/signin");

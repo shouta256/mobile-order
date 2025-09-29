@@ -39,7 +39,7 @@ export default function StaffForm() {
 
 	return (
 		<form onSubmit={onSubmit} className="space-y-4">
-			{/* 名前 */}
+			{/* Name */}
 			<input
 				value={name}
 				onChange={(e) => setName(e.target.value)}

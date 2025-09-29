@@ -17,7 +17,7 @@ export default function SignUpPage() {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		start(async () => {
-			// API 呼び出しでユーザー作成
+			// Call API to create user
 			const res = await fetch("/api/auth/signup", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -34,7 +34,7 @@ export default function SignUpPage() {
 				return;
 			}
 
-			// 自動ログイン
+			// Auto sign in
 			const signInResult = await signIn("credentials", {
 				redirect: false,
 				email,
@@ -49,7 +49,7 @@ export default function SignUpPage() {
 				return;
 			}
 
-			// ホームへ遷移
+			// Go to home
 			toast({ title: "登録＆ログイン完了！", variant: "success" });
 			window.location.href = "/";
 		});

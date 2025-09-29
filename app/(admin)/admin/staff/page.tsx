@@ -5,10 +5,10 @@ import { updateStaff, deleteStaff } from "./actions";
 import StaffForm from "./staff-form";
 
 export default async function StaffManagementPage() {
-	// 認可チェック
+	// Check admin role
 	await requireAdmin();
 
-	// STAFF ロールのユーザー一覧を email 昇順で取得
+	// Get staff users sorted by email
 	const staff = await prisma.user.findMany({
 		where: { role: "STAFF" },
 		orderBy: { email: "asc" },
