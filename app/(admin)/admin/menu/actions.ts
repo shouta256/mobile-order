@@ -12,7 +12,7 @@ export async function createMenuItem(formData: FormData) {
 
 	const name = formData.get("name") as string;
 	const description = formData.get("description") as string;
-	const price = parseFloat(formData.get("price") as string);
+	const price = Number.parseFloat(formData.get("price") as string);
 	const categoryId = formData.get("categoryId") as string;
 	const available = formData.get("available") === "true";
 	const featured = formData.get("featured") === "true";
@@ -53,7 +53,7 @@ export async function updateMenuItem(formData: FormData) {
 	const id = formData.get("id") as string;
 	const name = formData.get("name") as string;
 	const description = formData.get("description") as string;
-	const price = parseFloat(formData.get("price") as string);
+	const price = Number.parseFloat(formData.get("price") as string);
 	const categoryId = formData.get("categoryId") as string;
 	const available = formData.get("available") === "true";
 	const featured = formData.get("featured") === "true";

@@ -29,7 +29,7 @@ export async function updateOrderDetail(formData: FormData) {
   for (let i = 0; i < itemIds.length; i++) {
     const id = itemIds[i];
     const raw = formData.get(`quantity-${id}`)?.toString();
-    const qty = raw ? Number.parseInt(raw, 10) : NaN;
+    const qty = raw ? Number.parseInt(raw, 10) : Number.NaN;
     if (!Number.isFinite(qty) || qty < 0) {
       throw new Error("数量が不正です");
     }

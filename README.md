@@ -72,6 +72,14 @@ $ npm run dev
 # http://localhost:3000 で確認
 ```
 
+> **pnpm 派の方へ**
+
+```bash
+$ pnpm install
+$ pnpm dev
+$ pnpm lint  # Biome で静的解析を実行
+```
+
 ### 5. ビルド & 本番実行
 
 ```bash
