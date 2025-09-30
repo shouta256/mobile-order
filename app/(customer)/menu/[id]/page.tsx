@@ -13,9 +13,10 @@ export async function generateStaticParams(): Promise<Params[]> {
 	return items.map((item) => ({ id: item.id }));
 }
 
-export default async function MenuItemPage({ params }: { params: Params }) {
+export default async function MenuItemPage({ params }: { params: Promise<Params> }) {
+	const { id } = await params;
 	const [item, setting] = await Promise.all([
-		getMenuItem(params.id),
+		getMenuItem(id),
 		getSiteSetting(),
 	]);
 	if (!item) return notFound();

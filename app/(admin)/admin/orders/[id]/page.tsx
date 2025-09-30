@@ -8,13 +8,14 @@ interface Params {
 	id: string;
 }
 
-export default async function OrderEditPage({ params }: { params: Params }) {
+export default async function OrderEditPage({ params }: { params: Promise<Params> }) {
 	// Only STAFF or ADMIN can see this page
 	await requireStaff();
 
 	// Load order data
+	const { id } = await params;
 	const orderRaw = await prisma.order.findUnique({
-		where: { id: params.id },
+		where: { id },
 		include: { orderItems: { include: { menuItem: true } } },
 	});
 	if (!orderRaw) return notFound();

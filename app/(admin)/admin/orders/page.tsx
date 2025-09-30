@@ -6,13 +6,14 @@ import { deleteOrder } from "./actions";
 const PAGE_SIZE = 20;
 
 export default async function OrdersPage({
-	searchParams,
+    searchParams,
 }: {
-	searchParams: { page?: string };
+    searchParams: Promise<{ page?: string }>;
 }) {
-	await requireStaff();
+    await requireStaff();
 
-	const page = Math.max(1, Number(searchParams.page ?? "1"));
+    const { page: pageParam } = await searchParams;
+    const page = Math.max(1, Number(pageParam ?? "1"));
 	const [ordersRaw, totalCount] = await Promise.all([
 		prisma.order.findMany({
 			orderBy: { createdAt: "desc" },

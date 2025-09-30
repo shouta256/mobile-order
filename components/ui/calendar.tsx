@@ -54,8 +54,17 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        Chevron: ({ orientation, className }) =>
+          orientation === 'left' ? (
+            <ChevronLeft className={cn('h-4 w-4', className)} />
+          ) : orientation === 'right' ? (
+            <ChevronRight className={cn('h-4 w-4', className)} />
+          ) : orientation === 'up' ? (
+            // Fallback for potential "up" orientation in dropdowns
+            <ChevronLeft className={cn('h-4 w-4 rotate-90', className)} />
+          ) : (
+            <ChevronRight className={cn('h-4 w-4 -rotate-90', className)} />
+          ),
       }}
       {...props}
     />

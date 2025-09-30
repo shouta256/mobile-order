@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	experimental: {
-		serverActions: true,
+		serverActions: {
+			bodySizeLimit: '2mb',
+			allowedOrigins: ['localhost:3000'],
+		},
 	},
 	reactStrictMode: true,
-	swcMinify: true,
 
   // Use standalone because static export cannot run dynamic API
 	output: "standalone",
@@ -21,6 +23,9 @@ const nextConfig = {
         // Add more domains when needed
 		],
 	},
+
+	// Silence workspace root inference warning by explicitly setting the tracing root
+	outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;
