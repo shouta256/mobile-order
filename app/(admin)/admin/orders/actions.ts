@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import type { OrderStatus } from "@prisma/client";
 import { requireStaff } from "@/lib/auth";
 
-/** OrderEditForm.tsx から呼ばれている関数名に合わせる */
+/** Keep the function name to match what's called from OrderEditForm.tsx */
 export async function updateOrderDetail(formData: FormData) {
   // Check STAFF or ADMIN role
   await requireStaff();
@@ -17,7 +17,7 @@ export async function updateOrderDetail(formData: FormData) {
   const tableNumber = formData.get("tableNumber")?.toString();
 
   if (!orderId || !statusRaw || !tableNumber) {
-    throw new Error("必要なフィールドがありません");
+    throw new Error("Missing required fields");
   }
   const status = statusRaw as OrderStatus;
 
@@ -31,7 +31,7 @@ export async function updateOrderDetail(formData: FormData) {
     const raw = formData.get(`quantity-${id}`)?.toString();
     const qty = raw ? Number.parseInt(raw, 10) : Number.NaN;
     if (!Number.isFinite(qty) || qty < 0) {
-      throw new Error("数量が不正です");
+  throw new Error("Invalid quantity");
     }
     quantityMap[id] = qty;
   }
@@ -88,12 +88,12 @@ export async function updateOrderDetail(formData: FormData) {
   revalidatePath("/admin/orders");
 }
 
-/** page.tsx から呼ばれている名前に合わせる */
+/** Keep the function name to match what's called from page.tsx */
 export async function deleteOrder(formData: FormData) {
   // Check STAFF or ADMIN role
   await requireStaff();
   const orderId = formData.get("id")?.toString();
-  if (!orderId) throw new Error("ID がありません");
+  if (!orderId) throw new Error("Missing ID");
 
   await prisma.order.delete({ where: { id: orderId } });
   revalidatePath("/admin/orders");

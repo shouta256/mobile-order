@@ -22,14 +22,14 @@ export default function StaffForm() {
 		start(async () => {
 			try {
 				await createStaff(fd);
-				toast({ title: "スタッフ登録完了", variant: "success" });
+				toast({ title: "Staff created", variant: "success" });
 				setName("");
 				setEmail("");
 				setPassword("");
 			} catch (err: unknown) {
 				const error = err as Error;
 				toast({
-					title: "登録失敗",
+					title: "Failed to register",
 					description: error.message,
 					variant: "destructive",
 				});
@@ -43,7 +43,7 @@ export default function StaffForm() {
 			<input
 				value={name}
 				onChange={(e) => setName(e.target.value)}
-				placeholder="名前"
+				placeholder="Name"
 				className="w-full p-2 border rounded"
 				required
 			/>
@@ -61,7 +61,7 @@ export default function StaffForm() {
 				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
-				placeholder="パスワード"
+				placeholder="Password"
 				className="w-full p-2 border rounded"
 				required
 			/>
@@ -70,7 +70,7 @@ export default function StaffForm() {
 				disabled={isPending}
 				className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
 			>
-				{isPending ? "登録中…" : "登録"}
+				{isPending ? "Submitting…" : "Register"}
 			</button>
 		</form>
 	);

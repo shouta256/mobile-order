@@ -13,9 +13,9 @@ export async function createStaff(formData: FormData) {
 	const name = formData.get("name") as string;
 	const pass = formData.get("password") as string;
 
-	if (!email || !name || !pass) throw new Error("入力値が不足しています");
+	if (!email || !name || !pass) throw new Error("Missing required fields");
 	if (await prisma.user.findUnique({ where: { email } })) {
-		throw new Error("このメールアドレスは既に登録されています");
+		throw new Error("This email is already registered");
 	}
 
 	const hash = await bcrypt.hash(pass, 10);
@@ -30,7 +30,7 @@ export async function updateStaff(formData: FormData) {
 	await requireAdmin();
 	const id = formData.get("id") as string;
 	const name = formData.get("name") as string;
-	if (!id || !name) throw new Error("入力値が不足しています");
+	if (!id || !name) throw new Error("Missing required fields");
 
 	await prisma.user.update({ where: { id }, data: { name } });
 	revalidatePath("/admin/staff");
@@ -40,7 +40,7 @@ export async function updateStaff(formData: FormData) {
 export async function deleteStaff(formData: FormData) {
 	await requireAdmin();
 	const id = formData.get("id") as string;
-	if (!id) throw new Error("ID 不正");
+	if (!id) throw new Error("Invalid ID");
 	await prisma.user.delete({ where: { id } });
 	revalidatePath("/admin/staff");
 }

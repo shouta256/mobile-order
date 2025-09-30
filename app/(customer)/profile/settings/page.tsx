@@ -12,7 +12,7 @@ export default async function SettingsPage() {
 
 	return (
 		<div className="container mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-6">プロフィール設定</h1>
+			<h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 			<SettingsForm
 				user={{
 					name: user.name ?? "",

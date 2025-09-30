@@ -34,22 +34,22 @@ const RecentOrdersTable: FC<RecentOrdersTableProps> = ({ orders }) => {
 				<thead className="bg-gray-50">
 					<tr>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							注文ID
+							Order ID
 						</th>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							顧客
+							Customer
 						</th>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							テーブル番号
+							Table
 						</th>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							合計
+							Total
 						</th>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							ステータス
+							Status
 						</th>
 						<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-							日時
+							Date / Time
 						</th>
 					</tr>
 				</thead>

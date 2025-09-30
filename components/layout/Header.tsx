@@ -15,14 +15,14 @@ export default async function Header() {
 	return (
 		<header className="fixed top-0 w-full bg-white shadow z-20">
 			<div className="container mx-auto flex items-center justify-between h-16 px-4">
-				{/* ロゴ */}
+				{/* Logo */}
 				<Link href="/">
 					<span className="text-xl font-bold" style={{ color: "var(--pc)" }}>
 						{setting?.storeName ?? "MyRestaurant"}
 					</span>
 				</Link>
 
-				{/* ナビゲーション／ハンバーガー */}
+				{/* Navigation / Hamburger */}
 				<div className="flex items-center space-x-4">
 					<NavMenu user={user} />
 
@@ -39,7 +39,7 @@ export default async function Header() {
 							href="/auth/signin"
 							className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
 						>
-							サインイン
+							Sign in
 						</Link>
 					)}
 				</div>

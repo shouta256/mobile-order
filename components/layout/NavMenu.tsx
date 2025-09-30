@@ -21,14 +21,14 @@ export default function NavMenu({ user }: NavMenuProps) {
 	const [open, setOpen] = useState(false);
 
 	const links: NavLink[] = [
-		{ href: "/menu", label: "メニュー", roles: ["CUSTOMER"] },
-		{ href: "/checkout", label: "カート", roles: ["CUSTOMER"] },
-		{ href: "/orders", label: "注文履歴", roles: ["CUSTOMER"] },
-		{ href: "/admin/orders", label: "オーダー一覧", roles: ["STAFF", "ADMIN"] },
-		{ href: "/admin/menu", label: "メニュー管理", roles: ["ADMIN"] },
-		{ href: "/admin/dashboard", label: "管理画面", roles: ["ADMIN"] },
-		{ href: "/admin/staff", label: "スタッフ管理", roles: ["ADMIN"] },
-		{ href: "/admin/settings", label: "サイト設定", roles: ["ADMIN"] },
+		{ href: "/menu", label: "Menu", roles: ["CUSTOMER"] },
+		{ href: "/checkout", label: "Cart", roles: ["CUSTOMER"] },
+		{ href: "/orders", label: "Order History", roles: ["CUSTOMER"] },
+		{ href: "/admin/orders", label: "Orders", roles: ["STAFF", "ADMIN"] },
+		{ href: "/admin/menu", label: "Menu Manager", roles: ["ADMIN"] },
+		{ href: "/admin/dashboard", label: "Dashboard", roles: ["ADMIN"] },
+		{ href: "/admin/staff", label: "Staff Management", roles: ["ADMIN"] },
+		{ href: "/admin/settings", label: "Site Settings", roles: ["ADMIN"] },
 	];
 
 	// Cast user.role to Role and filter

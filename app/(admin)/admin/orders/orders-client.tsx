@@ -38,16 +38,16 @@ interface Props {
 export default function AdminOrdersClient({ orders }: Props) {
 	return (
 		<div className="container mx-auto p-4">
-			<h1 className="text-2xl font-bold mb-4">注文一覧</h1>
+			<h1 className="text-2xl font-bold mb-4">Orders</h1>
 			<table className="w-full table-auto border-collapse">
 				<thead>
 					<tr className="bg-gray-100">
 						<th className="p-2">ID</th>
-						<th className="p-2">合計</th>
-						<th className="p-2">状態</th>
-						<th className="p-2">支払い</th>
-						<th className="p-2">テーブル</th>
-						<th className="p-2">日時</th>
+						<th className="p-2">Total</th>
+						<th className="p-2">Status</th>
+						<th className="p-2">Payment</th>
+						<th className="p-2">Table</th>
+						<th className="p-2">Date / Time</th>
 					</tr>
 				</thead>
 				<tbody>

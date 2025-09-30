@@ -42,12 +42,12 @@ export default function MenuManagerClient({ items, categories }: Props) {
 		start(async () => {
 			try {
 				await createMenuItem(fd);
-				toast({ title: "メニューを作成しました", variant: "success" });
+				toast({ title: "Menu created", variant: "success" });
 				e.currentTarget.reset();
 				router.refresh();
 			} catch (err: unknown) {
 				toast({
-					title: err instanceof Error ? err.message : "作成に失敗しました",
+					title: err instanceof Error ? err.message : "Failed to create",
 					variant: "destructive",
 				});
 			}
@@ -69,7 +69,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 				router.refresh();
 			} catch (err: unknown) {
 				toast({
-					title: err instanceof Error ? err.message : "操作に失敗しました",
+					title: err instanceof Error ? err.message : "Action failed",
 					variant: "destructive",
 				});
 			}
@@ -80,7 +80,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 		<div className="space-y-8">
 			{/* New menu form */}
 			<section className="p-4 border rounded shadow-sm max-w-md">
-				<h3 className="mb-2 font-medium">新規メニュー登録</h3>
+				<h3 className="mb-2 font-medium">Create New Menu</h3>
 				<form
 					onSubmit={onCreate}
 					encType="multipart/form-data"
@@ -88,13 +88,13 @@ export default function MenuManagerClient({ items, categories }: Props) {
 				>
 					<input
 						name="name"
-						placeholder="名前"
+						placeholder="Name"
 						required
 						className="w-full p-2 border rounded"
 					/>
 					<textarea
 						name="description"
-						placeholder="説明"
+						placeholder="Description"
 						className="w-full p-2 border rounded resize-none"
 						rows={3}
 					/>
@@ -102,7 +102,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 						name="price"
 						type="number"
 						step="0.01"
-						placeholder="価格"
+						placeholder="Price"
 						required
 						className="w-full p-2 border rounded"
 					/>
@@ -113,7 +113,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 						defaultValue=""
 					>
 						<option value="" disabled>
-							カテゴリを選択
+							Select a category
 						</option>
 						{categories.map((cat) => (
 							<option key={cat.id} value={cat.id}>
@@ -144,7 +144,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 					</div>
 					<div>
 						<label htmlFor="new-image" className="block mb-1">
-							画像アップロード
+							Upload Image
 						</label>
 						<input id="new-image" type="file" name="image" accept="image/*" />
 					</div>
@@ -153,7 +153,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 						disabled={isPending}
 						className="w-full py-2 bg-green-600 text-white rounded disabled:opacity-50"
 					>
-						{isPending ? "送信中…" : "作成"}
+						{isPending ? "Sending…" : "Create"}
 					</button>
 				</form>
 			</section>
@@ -184,7 +184,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 						{/* Edit form */}
 							<form
 								onSubmit={(e) =>
-									onSubmit(e, updateMenuItem, "メニューを更新しました")
+									onSubmit(e, updateMenuItem, "Menu updated")
 								}
 								encType="multipart/form-data"
 								className="flex-1 flex flex-col space-y-2"
@@ -195,7 +195,7 @@ export default function MenuManagerClient({ items, categories }: Props) {
 								<textarea
 									name="description"
 									defaultValue={item.description || ""}
-									placeholder="説明"
+									placeholder="Description"
 									className="p-1 border rounded resize-none"
 									rows={3}
 								/>
@@ -253,25 +253,21 @@ export default function MenuManagerClient({ items, categories }: Props) {
 									type="submit"
 									disabled={isPending}
 									className="py-1 bg-blue-600 text-white rounded disabled:opacity-50"
-								>
-									修正
-								</button>
+								>Update</button>
 							</form>
 
 							{/* Delete form */}
 							<form
 								onSubmit={(e) =>
-									onSubmit(e, deleteMenuItem, "メニューを削除しました")
+									onSubmit(e, deleteMenuItem, "Menu deleted")
 								}
 								className="mt-2"
 							>
 								<input type="hidden" name="id" value={item.id} />
 								<button
-									type="button"
+									type="submit"
 									className="w-full py-1 bg-red-600 text-white rounded"
-								>
-									削除
-								</button>
+								>Delete</button>
 							</form>
 						</div>
 					</div>

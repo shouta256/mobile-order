@@ -55,14 +55,14 @@ export default function ProfileMenu({ user }: ProfileMenuProps) {
 						href="/profile/settings"
 						className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
 					>
-						設定
+						Settings
 					</Link>
 					<button
 						type="button"
 						onClick={() => signOut({ callbackUrl: "/" })}
 						className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"
 					>
-						ログアウト
+						Sign out
 					</button>
 				</div>
 			)}

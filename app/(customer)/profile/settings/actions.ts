@@ -7,11 +7,11 @@ import { revalidatePath } from "next/cache";
 
 export async function updateProfile(formData: FormData) {
 	const user = await getCurrentUser();
-	if (!user) throw new Error("ログインが必要です");
+	if (!user) throw new Error("Sign in is required");
 
 	const name = formData.get("name");
 	if (typeof name !== "string" || name.trim() === "") {
-		throw new Error("名前を入力してください");
+		throw new Error("Please enter your name");
 	}
 
 	await prisma.user.update({

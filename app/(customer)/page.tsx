@@ -24,9 +24,9 @@ export default async function HomePage() {
 			? setting.heroImage
 			: FALLBACK_URL;
 
-	/* 設定が無い場合のフォールバック */
-	const heroText1 = setting?.heroText1 ?? "ハンバーガーで、";
-	const heroText2 = setting?.heroText2 ?? "今日をもっとおいしく。";
+	/* Fallback when no setting */
+	const heroText1 = setting?.heroText1 ?? "With burgers,";
+	const heroText2 = setting?.heroText2 ?? "make your day tasty.";
 	const heroText3 = setting?.heroText3 ?? "";
 	const primaryColor = setting?.primaryColor ?? "#ff7a00";
 
@@ -34,10 +34,10 @@ export default async function HomePage() {
 		<div className="flex flex-col min-h-screen">
 			{/* Hero Section */}
 			<section className="relative h-[70vh] flex items-center">
-				{/* 背景画像 */}
+				{/* Background image */}
 				<div className="absolute inset-0 z-0 overflow-hidden">
 					<Image
-						src={heroImage} /* ← ここが string 型に */
+						src={heroImage} /* ← this is a string URL */
 						alt="Hero"
 						fill
 						priority
@@ -45,7 +45,7 @@ export default async function HomePage() {
 					/>
 				</div>
 
-				{/* キャッチコピー */}
+				{/* Catch copy */}
 				<div className="container mx-auto px-6 relative z-10">
 					<div className="w-full sm:max-w-xl">
 						<h1 className="font-bold leading-tight text-4xl md:text-6xl tracking-tight">
@@ -188,27 +188,26 @@ export default async function HomePage() {
 			{/* How It Works */}
 			<section className="py-16 bg-white">
 				<div className="container mx-auto px-6">
-					<h2 className="text-3xl font-bold text-center mb-12">ご利用の流れ</h2>
+					<h2 className="text-3xl font-bold text-center mb-12">How it works</h2>
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{[
 							{
-								title: "メニュー",
+								title: "Menu",
 								icon: "🍔",
-								description:
-									"豊富なメニューからお好みの料理をお選びいただけます。",
+								description: "Choose your favorite from many items.",
 							},
 							{
-								title: "注文",
+								title: "Order",
 								icon: "🛒",
 								description:
-									"アイテムをカートに追加し、簡単な手続きでご注文を完了できます。",
+									"Add items to cart and finish your order easily.",
 							},
 							{
-								title: "簡単",
+								title: "Enjoy",
 								icon: "😋",
 								description:
-									"ご注文の料理がすぐに届き、そのまま美味しくお楽しみいただけます。",
+									"Get your food soon and enjoy your meal.",
 							},
 						].map((step) => (
 							<div

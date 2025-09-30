@@ -16,7 +16,7 @@ export default function CartLink() {
 					count > 0 ? "bg-primary/10" : ""
 				} transition`}
 			>
-				<p className="mr-1 text-primary">カート</p>
+				<p className="mr-1 text-primary">Cart</p>
 				<ShoppingCart
 					size={18}
 					className={`transition ${

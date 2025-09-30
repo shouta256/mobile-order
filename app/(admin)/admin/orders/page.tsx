@@ -38,19 +38,19 @@ export default async function OrdersPage({
 
 	// Map status to label and color
 	const statusConfig = {
-		PENDING: { color: "bg-yellow-100 text-yellow-800", label: "未処理" },
-		PREPARING: { color: "bg-blue-100 text-blue-800", label: "準備中" },
-		READY: { color: "bg-purple-100 text-purple-800", label: "準備完了" },
-		DELIVERED: { color: "bg-indigo-100 text-indigo-800", label: "配達済み" },
-		COMPLETED: { color: "bg-green-100 text-green-800", label: "完了" },
-		CANCELLED: { color: "bg-red-100 text-red-800", label: "キャンセル" },
+		PENDING: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+		PREPARING: { color: "bg-blue-100 text-blue-800", label: "Preparing" },
+		READY: { color: "bg-purple-100 text-purple-800", label: "Ready" },
+		DELIVERED: { color: "bg-indigo-100 text-indigo-800", label: "Delivered" },
+		COMPLETED: { color: "bg-green-100 text-green-800", label: "Completed" },
+		CANCELLED: { color: "bg-red-100 text-red-800", label: "Cancelled" },
 	};
 
 	return (
 		<div className="max-w-6xl mx-auto px-4 py-8">
 			<div className="flex justify-between items-center mb-8">
-				<h1 className="text-3xl font-bold text-gray-800">オーダー一覧</h1>
-				<div className="text-sm text-gray-500">{orders.length} 件の注文</div>
+				<h1 className="text-3xl font-bold text-gray-800">Orders</h1>
+				<div className="text-sm text-gray-500">{orders.length} orders</div>
 			</div>
 
 			{orders.length === 0 ? (
@@ -70,7 +70,7 @@ export default async function OrdersPage({
 							d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
 						/>
 					</svg>
-					<p className="text-lg text-gray-600">まだ注文がありません。</p>
+					<p className="text-lg text-gray-600">No orders yet.</p>
 				</div>
 			) : (
 				<div className="space-y-6">
@@ -90,7 +90,7 @@ export default async function OrdersPage({
 											</span>
 										</div>
 									<div className="text-xs text-center mt-1 font-medium text-gray-500">
-										テーブル
+										Table
 										</div>
 									</div>
 
@@ -103,7 +103,7 @@ export default async function OrdersPage({
 													</span>
 												</>
 											) : (
-												<span className="text-gray-500">顧客情報なし</span>
+												<span className="text-gray-500">No customer info</span>
 											)}
 										</div>
 										<div className="text-sm text-gray-500">
@@ -133,9 +133,7 @@ export default async function OrdersPage({
 
 							{/* Order items */}
 							<div className="px-6 py-4">
-								<h3 className="text-sm font-medium text-gray-500 mb-3">
-									注文内容
-								</h3>
+								<h3 className="text-sm font-medium text-gray-500 mb-3">Items</h3>
 								<ul className="divide-y divide-gray-100">
 									{order.orderItems.map((item) => (
 										<li key={item.id} className="py-2 flex justify-between">
@@ -166,7 +164,7 @@ export default async function OrdersPage({
 											viewBox="0 0 24 24"
 											stroke="currentColor"
 										>
-											<title>完了アイコン</title>
+											<title>Completed icon</title>
 											<path
 												strokeLinecap="round"
 												strokeLinejoin="round"
@@ -174,14 +172,12 @@ export default async function OrdersPage({
 												d="M5 13l4 4L19 7"
 											/>
 										</svg>
-										完了済み
+										Completed
 									</p>
 								</div>
 							) : (
 								<div className="bg-gray-50 px-6 py-3 border-t flex justify-between items-center">
-										<span className="text-sm text-gray-500">
-											注文ID: {order.id.substring(0, 8)}...
-									</span>
+										<span className="text-sm text-gray-500">Order ID: {order.id.substring(0, 8)}...</span>
 
 									<div className="flex items-center gap-3">
 										{/* Edit button */}
@@ -189,7 +185,7 @@ export default async function OrdersPage({
 											href={`/admin/orders/${order.id}`}
 											className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors"
 										>
-											修正
+											Edit
 										</a>
 
 										{/* Delete button */}
@@ -199,7 +195,7 @@ export default async function OrdersPage({
 												type="submit"
 												className="px-4 py-2 bg-white border border-red-600 text-red-600 hover:bg-red-50 rounded-md text-sm font-medium transition-colors"
 											>
-												削除
+												Delete
 											</button>
 										</form>
 									</div>

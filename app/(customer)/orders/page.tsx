@@ -4,8 +4,8 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import type { Decimal } from "@prisma/client/runtime/library";
 
-/** 「xx 分前 / xx 時間前」を Intl で生成（日本語）*/
-const rtf = new Intl.RelativeTimeFormat("ja", { numeric: "auto" });
+/** Build strings like "xx minutes ago / xx hours ago" in English */
+const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 function formatRelative(date: Date) {
 	const diffSec = Math.round((Date.now() - date.getTime()) / 1_000);
 	const minutes = Math.floor(diffSec / 60);
@@ -14,7 +14,7 @@ function formatRelative(date: Date) {
 	return rtf.format(-hours, "hour");
 }
 
-/** 本日 00:00 (Asia/Tokyo) */
+/** Today 00:00 (Asia/Tokyo) */
 function getTodayStart(): Date {
 	const nowJst = new Date(
 		new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
@@ -60,7 +60,7 @@ function normalizeOrders<
 
 export default async function OrdersPage() {
 	const user = await getCurrentUser();
-	if (!user) throw new Error("ログインが必要です");
+	if (!user) throw new Error("Sign in is required");
 
 	const todayStart = getTodayStart();
 	const [todayRaw, pastRaw] = await Promise.all([
@@ -89,14 +89,14 @@ export default async function OrdersPage() {
 		<>
 			<h2 className="text-xl font-semibold mb-4">{title}</h2>
 			{list.length === 0 ? (
-				<p className="mb-8 text-gray-500">該当する注文がありません。</p>
+				<p className="mb-8 text-gray-500">No orders found.</p>
 			) : (
 				<div className="space-y-8 mb-10">
 					{list.map((order) => (
 						<div key={order.id} className="border p-4 rounded-lg">
-							{/* ヘッダー（日時 & 合計） */}
+							{/* Header (datetime & total) */}
 							<div className="flex justify-between mb-2 text-sm text-gray-600">
-								{title === "今日の注文" ? (
+								{title === "Today's Orders" ? (
 									<span>{formatRelative(order.createdAt)}</span>
 								) : (
 									<span>
@@ -107,17 +107,13 @@ export default async function OrdersPage() {
 										})}
 									</span>
 								)}
-								<span className="font-semibold">
-									合計: ¥{order.total.toFixed(2)}
-								</span>
+								<span className="font-semibold">Total: ¥{order.total.toFixed(2)}</span>
 							</div>
 
-							{/* テーブル番号 */}
-							<p className="mb-2 text-xs text-gray-500">
-								テーブル番号: {order.tableNumber}
-							</p>
+							{/* Table number */}
+							<p className="mb-2 text-xs text-gray-500">Table: {order.tableNumber}</p>
 
-							{/* アイテム一覧 */}
+							{/* Items */}
 							<ul className="space-y-2">
 								{order.orderItems.map((item) => (
 									<li
@@ -154,9 +150,9 @@ export default async function OrdersPage() {
 
 	return (
 		<div className="max-w-3xl mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-6">注文履歴</h1>
-			<Section title="今日の注文" list={todayOrders} />
-			<Section title="過去の注文" list={pastOrders} />
+			<h1 className="text-2xl font-bold mb-6">Order History</h1>
+			<Section title="Today's Orders" list={todayOrders} />
+			<Section title="Past Orders" list={pastOrders} />
 		</div>
 	);
 }
