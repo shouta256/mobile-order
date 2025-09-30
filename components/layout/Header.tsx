@@ -1,13 +1,9 @@
 // components/layout/header.tsx
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { getCurrentUser } from "@/lib/auth";
 import NavMenu from "./NavMenu";
 import { getSiteSetting } from "@/lib/settings";
-
-const ProfileMenu = dynamic(() => import("./ProfileMenu"), {
-	ssr: false,
-});
+import ProfileMenu from "./ProfileMenu";
 
 export default async function Header() {
 	// Get user from session on server
