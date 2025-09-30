@@ -1,60 +1,81 @@
 // app/api/checkout/route.ts
 import { NextResponse } from "next/server";
+import Decimal from "decimal.js";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
 type OrderItem = {
-	id: string;
-	quantity: number;
-	price: number;
-	note?: string;
+    id: string;
+    quantity: number;
+    note?: string;
 };
 
 export async function POST(req: Request) {
-	// Read table number, items, and note from request
-	const { items, note, tableNumber } = (await req.json()) as {
-		items: OrderItem[];
-		note?: string;
-		tableNumber: string;
-	};
+    // Read table number, items, and note from request
+    const { items, note, tableNumber } = (await req.json()) as {
+        items: OrderItem[];
+        note?: string;
+        tableNumber: string;
+    };
 
-	// Get current user
-	const user = await getCurrentUser();
-	if (!user) {
-		return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
-	}
+    // Get current user
+    const user = await getCurrentUser();
+    if (!user) {
+        return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
 
-	// Calculate total price
-	const total = items.reduce(
-		(sum: number, item: { price: number; quantity: number }) =>
-			sum + item.price * item.quantity,
-		0,
-	);
+    // Validate
+    if (!Array.isArray(items) || items.length === 0) {
+        return NextResponse.json({ error: "カートが空です" }, { status: 400 });
+    }
 
-	// Convert to Prisma Decimal
-	const { Decimal } = await import("decimal.js");
-	const totalDecimal = new Decimal(total);
+    // Fetch latest prices by IDs from DB
+    const uniqueIds = Array.from(new Set(items.map((i) => i.id)));
+    const dbItems = await prisma.menuItem.findMany({
+        where: { id: { in: uniqueIds } },
+        select: { id: true, price: true, available: true },
+    });
+    if (dbItems.length !== uniqueIds.length) {
+        return NextResponse.json(
+            { error: "存在しないメニューが含まれています" },
+            { status: 400 },
+        );
+    }
+    const map = new Map(dbItems.map((m) => [m.id, m]));
 
-	// Create order
-	const order = await prisma.order.create({
-		data: {
-			userId: user.id,
-			total: totalDecimal,
-			status: "PENDING",
-			paymentStatus: "PENDING",
-			paymentMethod: "CARD", // Use fixed value, change if front sends data
-			tableNumber: tableNumber, // Was deliveryAddress, now tableNumber
-			note: note ?? "",
-			orderItems: {
-				create: items.map((item: OrderItem) => ({
-					menuItemId: item.id,
-					quantity: item.quantity,
-					price: new Decimal(item.price),
-					note: item.note ?? "",
-				})),
-			},
-		},
-	});
+    // Build order items from DB prices and recalc total with Decimal
+    let total = new Decimal(0);
+    const orderItemsData = items.map((it) => {
+        const mi = map.get(it.id);
+        if (!mi) throw new Error("メニューが見つかりません");
+        if (mi.available === false)
+            throw new Error("販売停止中の商品が含まれています");
+        if (!Number.isInteger(it.quantity) || it.quantity <= 0)
+            throw new Error("数量が不正です");
 
-	return NextResponse.json({ order });
+        total = total.add(new Decimal(mi.price.toString()).mul(it.quantity));
+        return {
+            menuItemId: it.id,
+            quantity: it.quantity,
+            price: mi.price,
+            note: it.note ?? "",
+        };
+    });
+    const totalDecimal = total.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+
+    // Create order with trusted values
+    const order = await prisma.order.create({
+        data: {
+            userId: user.id,
+            total: totalDecimal.toFixed(2),
+            status: "PENDING",
+            paymentStatus: "PENDING",
+            paymentMethod: "CARD",
+            tableNumber,
+            note: note ?? "",
+            orderItems: { create: orderItemsData },
+        },
+    });
+
+    return NextResponse.json({ order });
 }
