@@ -55,13 +55,13 @@ export default function OrderEditForm({ order }: { order: Order }) {
 				}
 
 				await updateOrderDetail(formData);
-				toast({ title: "注文を更新しました", variant: "success" });
+				toast({ title: "Order updated", variant: "success" });
 				router.push("/admin/orders");
 			} catch (err: unknown) {
 				toast({
-					title: "更新に失敗しました",
+					title: "Update failed",
 					description:
-						err instanceof Error ? err.message : "不明なエラーが発生しました",
+						err instanceof Error ? err.message : "An unknown error happened",
 					variant: "destructive",
 				});
 			}
@@ -70,12 +70,12 @@ export default function OrderEditForm({ order }: { order: Order }) {
 
 	return (
 		<div className="max-w-2xl mx-auto p-6 space-y-6">
-			<h1 className="text-xl font-bold">注文を修正</h1>
+			<h1 className="text-xl font-bold">Edit order</h1>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label htmlFor="tableNumber" className="block mb-1 font-medium">
-						テーブル番号
+						Table number
 					</label>
 					<input
 						id="tableNumber"
@@ -88,7 +88,7 @@ export default function OrderEditForm({ order }: { order: Order }) {
 
 				<div>
 					<label htmlFor="status" className="block mb-1 font-medium">
-						ステータス
+						Status
 					</label>
 					<select
 						id="status"
@@ -104,7 +104,7 @@ export default function OrderEditForm({ order }: { order: Order }) {
 				</div>
 
 				<div className="space-y-2">
-					<p className="font-medium mb-1">注文アイテム</p>
+					<p className="font-medium mb-1">Order items</p>
 					{order.items.map((it) => (
 						<div key={it.id} className="flex items-center gap-2">
 							<span className="flex-1">{it.name}</span>
@@ -124,7 +124,7 @@ export default function OrderEditForm({ order }: { order: Order }) {
 					disabled={isPending}
 					className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
 				>
-					{isPending ? "保存中…" : "保存する"}
+					{isPending ? "Saving…" : "Save"}
 				</button>
 			</form>
 		</div>

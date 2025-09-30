@@ -1,146 +1,144 @@
-# 🍔 Mobile‑Order (Next.js 13 App Router)
+# 🍔 Mobile‑Order (Next.js App Router)
 
-### Vercel 本番環境
+### Live on Vercel
 
 https://mobile-order-taupe.vercel.app/
 
-## 📑 目次
+## 📑 Table of Contents
 
-1. [プロジェクト概要](#プロジェクト概要)
-2. [環境構築手順](#環境構築手順)
-3. [技術的な工夫点](#技術的な工夫点)
-4. [追加機能と選定理由](#追加機能と選定理由)
-5. [生成 AI 利用レポート](#生成-ai-利用レポート)
-
----
-
-## プロジェクト概要
-
-店舗の **モバイルオーダー & 管理ダッシュボード** を Next.js 13（App Router）でフルスタック実装しています。
-
-- **顧客**: メニュー閲覧 → カート → 注文 → 履歴
-- **スタッフ**: オーダー一覧で注文状況を更新
-- **管理者**: メニュー CRUD・売上分析・スタッフ管理
-- デプロイ: **Vercel** + **Vercel Postgres (Neon)** + Cloudinary
+1. [Project Overview](#project-overview)
+2. [Setup](#setup)
+3. [Tech Highlights](#tech-highlights)
+4. [Extra Features](#extra-features)
+5. [AI Usage Report](#ai-usage-report)
 
 ---
 
-## 環境構築手順
+## Project Overview
 
-### 1. 前提
+This app is a simple mobile order system and admin dashboard. It uses Next.js App Router.
 
-- Node.js **18+**
-- pnpm / npm / yarn いずれか
+- Customer: see menu → add to cart → place order → see history
+- Staff: update order status on the order list
+- Admin: manage menu, see sales, manage staff
+- Deploy: Vercel + Vercel Postgres (Neon) + Cloudinary
+
+---
+
+## Setup
+
+### 1) Requirements
+
+- Node.js 18+
+- pnpm or npm or yarn
 - Git / GitHub
 
-### 2. リポジトリ取得
+### 2) Get the repository
 
 ```bash
-$ git clone https://github.com/shouta256/mobile-order.git
-$ cd mobile-order
+git clone https://github.com/shouta256/mobile-order.git
+cd mobile-order
 ```
 
-### 3. 依存関係 & Prisma
+### 3) Install and Prisma
 
 ```bash
-# 依存インストール
-$ npm i
+# install dependencies
+npm i
 
-# .env ファイルを作成して環境変数をセット
-$ cp .env.example .env.local
+# create your env file
+cp .env.example .env.local
 ```
 
-主要な .env 項目:
+Main .env items:
 
-| 変数                                        | 説明                          |
-| ------------------------------------------- | ----------------------------- |
-| `DATABASE_URL`                              | Neon など Postgres 接続文字列 |
-| `NEXTAUTH_SECRET` / `NEXTAUTH_URL`          | next‑auth 用                  |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth                         |
-| `CLOUDINARY_*`                              | 画像アップロード              |
+| Key                                   | Description                      |
+| ------------------------------------- | -------------------------------- |
+| `DATABASE_URL`                        | Postgres URL (e.g. Neon)         |
+| `NEXTAUTH_SECRET` / `NEXTAUTH_URL`    | For NextAuth                     |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | For Google OAuth          |
+| `CLOUDINARY_*`                        | For image upload                 |
 
 ```bash
-# DB マイグレーション & シード
-$ npx prisma migrate deploy
-$ npx prisma db seed
+# DB migrate and seed
+npx prisma migrate deploy
+npx prisma db seed
 ```
 
-### 4. 開発サーバー
+### 4) Start dev server
 
 ```bash
-$ npm run dev
-# http://localhost:3000 で確認
+npm run dev
+# open http://localhost:3000
 ```
 
-> **pnpm 派の方へ**
+> Using pnpm?
 
 ```bash
-$ pnpm install
-$ pnpm dev
-$ pnpm lint  # Biome で静的解析を実行
+pnpm install
+pnpm dev
+pnpm lint  # run Biome lint
 ```
 
-### 5. ビルド & 本番実行
+### 5) Build and run
 
 ```bash
-$ npm run build && npm start
+npm run build && npm start
 ```
 
 ---
 
-## 技術的な工夫点
+## Tech Highlights
 
-| 分類                      | 工夫ポイント                                                                                                                                                                    |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Next.js 13 App Router** | Server/Client Component 分離で SEO & 体験を最適化。`use client` 指定を最小化しバンドルサイズを削減。                                                                            |
-| **DB & ORM**              | Neon(Postgres) + Prisma で型安全なクエリ。Decimal → number 変換を共通ヘルパに集約。                                                                                             |
-| **認証**                  | next‑auth v4: Credentials + Google OAuth。`middleware.ts` で保護ルートを制御。                                                                                                  |
-| **カート機能**            | `useCart` フックで React Context + localStorage 同期。                                                                                                                          |
-| **画像最適化**            | Cloudinary 署名付き URL を Prisma に保存し `<Image>` で自動最適化。                                                                                                             |
-| **レスポンシブ UI**       | Tailwind CSS。`container mx-auto px‑4` を徹底し 375px でも横スクロール無し。モバイルではハンバーガー + ドロワー。                                                               |
-| **型安全**                | Prisma 型生成 + `zod` で Server Actions の入力検証。                                                                                                                            |
-| **Analytics**             | Recharts + Prisma 集計でダッシュボードの売上折れ線 / 円グラフ。                                                                                                                 |
-| **Store Settings 機構**   | Prisma 1 レコードでサイト設定を一元管理。Server Action + Revalidate Path により更新即時反映。Color Picker／画像アップロードは `<input type="color">` と Cloudinary API を併用。 |
-| **パフォーマンス向上**    | ISR（revalidate）を活用したキャッシュ戦略、next/dynamic で動的インポート、高頻度更新箇所への useCallback・memo 適用で再レンダリング抑制。                                       |
-
----
-
-## 追加機能と選定理由
-
-| 機能                                     | 理由                                                                                                                                    |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **スタッフ & 管理者ロール**              | 実運用を想定し、調理オペレーションと経営分析を分離。                                                                                    |
-| **売上ダッシュボード**                   | 日次売上・人気メニュー可視化で経営判断を支援。                                                                                          |
-| **Cloudinary 画像アップロード**          | メニュー画像を直感的に登録でき、CDN 最適化も利用。                                                                                      |
-| **ハンバーガー / ドロワーメニューなど**  | 客はスマホを使用する想定でモバイル UX を向上(管理画面はタブレットなどの大きい画面を想定)。                                              |
-| **チャレンジ機能(ゲーミフィケーション)** | リピート率向上を狙った実験的機能(ホーム画面にのみ実装。中身は未実装)                                                                    |
-| **サイトデザイン設定 (Store Settings)**  | 管理者がヒーロー画像・キャッチコピー・ブランドカラーを GUI で変更でき、即時にサイトへ反映。ノーコードでトーン＆マナーを調整可能にした。 |
+| Area                     | Point                                                                 |
+| ------------------------ | ---------------------------------------------------------------------- |
+| Next.js App Router       | Split Server/Client Components to improve UX. Keep `use client` small. |
+| DB & ORM                 | Neon (Postgres) + Prisma. Safe types.                                  |
+| Auth                     | NextAuth v4: credentials + Google OAuth.                               |
+| Cart                     | `useCart` hook with localStorage sync.                                 |
+| Images                   | Cloudinary URLs saved in DB. Use `<Image>` for optimization.           |
+| Responsive UI            | Tailwind CSS. Mobile-first layout.                                     |
+| Type Safety              | Prisma types + `zod` for server actions.                               |
+| Analytics                | Recharts + Prisma for charts.                                          |
+| Store Settings           | One record in Prisma to control site design.                           |
+| Performance              | ISR caching, dynamic import, memo/callback to reduce re-render.        |
 
 ---
 
-## 生成 AI 利用レポート
+## Extra Features
 
-### 1. 使用した AI ツール
+| Feature                        | Why                                                             |
+| ------------------------------ | ---------------------------------------------------------------- |
+| Staff and Admin roles          | Separate kitchen work and admin work.                            |
+| Sales dashboard                | See sales by day and popular menu.                               |
+| Cloudinary upload              | Easy image upload and CDN.                                       |
+| Mobile navigation (drawer)     | Better UX on phones.                                             |
+| Challenge (gamification, demo) | Idea to increase repeat users (only UI, not implemented).        |
+| Store design settings          | Change hero image, copy, colors in GUI. Apply changes quickly.   |
 
-| ツール               | 用途                                                                     |
-| -------------------- | ------------------------------------------------------------------------ |
-| **ChatGPT (GPT‑4o)** | UI 生成・コードレビュー・エラー相談・データベース作成、README の雛形作成 |
-| **Bolt.new**         | ホーム画面の UI 作成                                                     |
-| **Claude 3 Sonnet**  | 部分的に UI の向上を指示                                                 |
+---
 
-### 2. 使用場面と目的
+## AI Usage Report
 
-1. **データモデル設計** … Prisma Schema を提案してもらった。
-2. **Server Action のバリデーション** … `zod` のスキーマ例を生成。
-3. **正規表現** … Email/Password の入力チェック。
-4. **デバッグ** … ビルドエラーを StackTrace 付きで投げて解決策を取得。
+### 1) Tools
 
-### 3. 代表的なプロンプト例
+| Tool              | Use case                                     |
+| ----------------- | -------------------------------------------- |
+| ChatGPT (GPT‑4o)  | UI help, code review, errors, DB, README     |
+| Bolt.new          | Make the home page UI                        |
+| Claude 3 Sonnet   | Small UI improvements                         |
 
-「管理画面ダッシュボード用に Recharts で折れ線グラフと円グラフを表示し、日にちごとの売り上げと人気メニューを可視化できるようして下さい。」
-売上分析画面のプロトタイプを短時間で仕上げるため、チャート配置の雛形を得る。
+### 2) When and why
 
-「Prisma の seed 用スクリプトで、過去 30 日分のダミー売上データを注文・注文アイテムにまとめて入れて下さい。」
-売上チャートをすぐ検証したかったため。本番 DB と差分が出ないよう Order/OrderItem の関連 insert を「１注文＝複数アイテム」で生成するコードを生成してもらった。
+1. Data model design – get ideas for Prisma schema.
+2. Server Actions validation – make `zod` schemas.
+3. Regex – check email and password formats.
+4. Debug – share build errors and get tips.
 
-> **備考**: AI 提案コードは必ずローカルで動作確認・セキュリティレビューを行い、最終的なコミットは私が責任を持って行いました。
+### 3) Example prompts
+
+“Make a dashboard with Recharts. Show a line chart and a pie chart. I want sales by day and popular menu.”
+
+“Write a Prisma seed script for 30 days of dummy orders and order items.”
+
+> Note: I always check AI code locally and review security before commit.

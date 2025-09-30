@@ -16,7 +16,7 @@ async function main() {
 		update: {},
 		create: {
 			email: adminEmail,
-			name: "店舗スタッフ（管理者）",
+			name: "Store staff (admin)",
 			password: adminHash,
 			role: "ADMIN",
 		},
@@ -35,7 +35,7 @@ async function main() {
 		update: {},
 		create: {
 			email: customerEmail,
-			name: "デモカスタマー",
+			name: "Demo customer",
 			password: customerHash,
 			role: "CUSTOMER",
 		},
@@ -65,7 +65,7 @@ async function main() {
 	const allMenuItems = await prisma.menuItem.findMany();
 	if (allMenuItems.length === 0) {
 		throw new Error(
-			"メニューアイテムが見つかりません。先にメニューシードを実行してください。",
+			"No menu items found. Please run the menu seed first.",
 		);
 	}
 
@@ -120,21 +120,21 @@ async function main() {
 		await prisma.siteSetting.create({
 			data: {
 				storeName: "My Restaurant",
-				heroText1: "ハンバーガーで、",
-				heroText2: "今日をもっとおいしく。",
-				heroText3: "産地直送の食材で毎日手づくり。ぜひお試しください！",
+				heroText1: "With our burgers,",
+				heroText2: "make your day more tasty.",
+				heroText3: "Made fresh every day with local ingredients. Please try!",
 				primaryColor: "#ff7a00",
 				heroImage:
 					"https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg",
 			},
 		});
 	}
-	console.log("✅ 過去7日間のデモ売上データを生成しました");
+	console.log("✅ Created demo sales for the past 7 days");
 }
 
 main()
 	.catch((e) => {
-		console.error("❌ シード中にエラーが発生しました:", e);
+		console.error("❌ Error during seeding:", e);
 		process.exit(1);
 	})
 	.finally(async () => {

@@ -13,7 +13,7 @@ export default function AddToCartButton({
 	return (
 		<Button onClick={() => addToCart({ id, name, price, image, quantity: 1 })}>
 			<Plus className="mr-2 h-4 w-4" />
-			カートに追加
+			Add to cart
 		</Button>
 	);
 }
